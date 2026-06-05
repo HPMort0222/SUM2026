@@ -1,20 +1,14 @@
 /* Donik Vasilisa, 10-6, 01.06.2026 */
 #include <stdio.h>
+#include <windows.h>
 #include <math.h>
 
-typedef double DBL;
-typedef char CHAR;
-typedef int BOOL;
-typedef int INT;
-typedef void VOID;
+typedef DOUBLE DBL;
 
-#define TRUE 1
-#define FALSE 0
-#define MAX 3
+#define MAX 1000
 
 DBL A[MAX][MAX], prod = 1, det = 0;
 INT N, P[MAX];
-BOOL IsParity = TRUE;
 
 BOOL LoadMatrix( CHAR *FileName )
 {
@@ -50,7 +44,7 @@ VOID Swap( DBL *a, DBL *b )
   *b = c;
 }
 
-DBL f( INT N )
+DBL f( VOID )
 {
   INT i, y, x, k, max_row, max_col;
   DBL coef;
@@ -83,15 +77,16 @@ DBL f( INT N )
     if (max_col != i)
     {
       /* Swap max_col and i column (elements/columns: [0..N-1]) */
-      Swap(&A[max_row][x], &A[i][x]);
+      for (y = i; y < N; y++)
+        Swap(&A[y][max_col], &A[y][i]);
       det = -det;
     }
     /* Subtrack from every row k:[i+1..N-1] row [i] multipled by (A[k][i] / A[i][i]) */
-    for (k = i + 1; k <= N - 1; k++)
+    for (k = i + 1; k < N; k++)
     {
       coef = A[k][i] / A[i][i];
       A[k][i] = 0;
-      for (x = i + 1; x <= k; x++)
+      for (x = i + 1; x < N; x++)
         A[k][x] -= A[i][x] * coef;
     }
 
@@ -106,7 +101,8 @@ VOID main( VOID )
   DBL Det;
 
   LoadMatrix("b.txt");
-  Det = f(0);
+  Det = f();
+
   printf("%f", Det);
   getchar();
 }
