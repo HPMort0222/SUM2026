@@ -9,28 +9,24 @@
 LRESULT CALLBACK MyWindowFunc( HWND hwnd, UINT Msg, 
                                WPARAM wparam,LPARAM lparam );
 
-VOID DrawSecHand( HDC hDc, HWND hWnd, POINT *P, INT Xc, INT Yc, INT M, INT L, INT H, INT W )
+VOID DrawSecHand( HDC hDc, HWND hWnd, INT M, INT L, INT H, INT W, DOUBLE Angle )
 {
   POINT
     pnt[4] = { {-L, 0}, {-M, -M}, {0, 0}, {-M, M} },
        pnt_res[sizeof(pnt) / sizeof(pnt[0])];
 
-  INT i, N = sizeof(pnt) / sizeof(pnt[0]),
-      X, Y, dx = Xc - P->x, dy = Yc - P->y;
+  INT i, N = sizeof(pnt) / sizeof(pnt[0]);
 
-  DOUBLE
-         angleSec = (time.wSecond + time.wMilliseconds / 1000.0) * 2.0 * PI / 60,
-         len = sqrt(dx * dx + dy * dy);
+  DOUBLE cosa, sina;
+
+  cosa = cos(Angle),
+  sina = sin(Angle);
 
   for (i = 0; i < N; i++)
   {
-    pnt_res[i].x = Xc + W / 2 + sin(angleSec) * W / 3;
-    pnt_res[i].y = Yc - H / 2 - cos(angleSec) * H / 3;
+    pnt_res[i].x = W / 2 + pnt[i].x * cosa + pnt[i].y * sina;
+    pnt_res[i].y = H / 2 - pnt[i].y * cosa + pnt[i].x * sina;
   }
-
-    SetDCPenColor(hMemDC, RGB(255, 20, 255));
-    MoveToEx(hMemDC, W / 2, H / 2, NULL);
-    LineTo(hMemDC, p.x, p.y);
 
   Polygon(hDc, pnt_res, 4);
 }
@@ -153,22 +149,21 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
     GetLocalTime(&time);
     TextOut(hMemDC, W / 5, H / 5, Buf, wsprintf(Buf, "%02d:%02d:%02d", time.wHour, time.wMinute, time.wSecond));
 
+    angleSec = (time.wSecond + time.wMilliseconds / 1000.0) * 2.0 * PI / 60;
     angleMin = (time.wMinute + time.wSecond / 60.0 + time.wMilliseconds / 60000.0) * 2.0 * PI / 60;
     angleHour = (time.wHour + time.wMinute / 60.0 + time.wSecond / 3600.0 + time.wMilliseconds / 3600000.0) / 12.0 * 2 * PI;
 
-    p.x = W / 2 + sin(angleMin) * W / 5;
-    p.y = H / 2 - cos(angleMin) * H / 5;
+    SetDCPenColor(hMemDC, RGB(255, 20, 255));
+    SetDCBrushColor(hMemDC, RGB(255, 20, 255));
+    DrawSecHand(hMemDC, hWnd, 5, 200, H, W, angleSec);
 
     SetDCPenColor(hMemDC, RGB(25, 20, 25));
-    MoveToEx(hMemDC, W / 2, H / 2, NULL);
-    LineTo(hMemDC, p.x, p.y);
-
-    p.x = W / 2 + sin(angleHour) * W / 9;
-    p.y = H / 2 - cos(angleHour) * H / 9;
+    SetDCBrushColor(hMemDC, RGB(25, 200, 55));
+    DrawSecHand(hMemDC, hWnd, 7, 100, H, W, angleMin);
 
     SetDCPenColor(hMemDC, RGB(5, 200, 255));
-    MoveToEx(hMemDC, W / 2, H / 2, NULL);
-    LineTo(hMemDC, p.x, p.y);
+    SetDCBrushColor(hMemDC, RGB(10, 200, 210));
+    DrawSecHand(hMemDC, hWnd, 10, 150, H, W, angleHour);
 
     GetCursorPos(&p);
     ScreenToClient(hWnd, &p);
