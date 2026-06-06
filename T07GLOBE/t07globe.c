@@ -2,6 +2,8 @@
 
 #include "globe.h"
 
+#define WND_CLASS_NAME "My super-puper proj"
+
 LRESULT CALLBACK MyWindowFunc( HWND hwnd, UINT Msg,
                                WPARAM wparam,LPARAM lparam );
 
@@ -60,6 +62,27 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 
   switch (Msg)
   {
+  case WM_CREATE:
+    hDc = GetDC(hWnd);
+    hMemDC = CreateCompatibleDC(hDc);
+    GLB_Init(0.3);
+    ReleaseDC(hWnd, hDc);
+    SetTimer(hWnd, 50, 1, NULL);
+    break;
+
+  case WM_SIZE:
+    W = LOWORD(lParam);
+    H = HIWORD(lParam);
+    GLB_Resize(W, H);
+
+    if (hBm != NULL)
+      DeleteObject(hBm);
+    hDc = GetDC(hWnd);
+    hBm = CreateCompatibleBitmap(hDc, W, H);
+
+    ReleaseDC(hWnd, hDc);
+    return 0;
+
   case WM_COMMAND:
     if (LOWORD(wParam) == 31)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
@@ -83,37 +106,17 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
     InvalidateRect(hWnd, NULL, TRUE);
     return 0;
 
-  case WM_SIZE:
-    W = LOWORD(lParam);
-    H = HIWORD(lParam);
-    GLB_Resize(W, H);
-
-    if (hBm != NULL)
-      DeleteObject(hBm);
-    hDc = GetDC(hWnd);
-    hBm = CreateCompatibleBitmap(hDc, W, H);
-
-    ReleaseDC(hWnd, hDc);
-    return 0;
-
-  case WM_CREATE:
-    hDc = GetDC(hWnd);
-    hMemDC = CreateCompatibleDC(hDc);
-    GLB_Init(100);
-    ReleaseDC(hWnd, hDc);
-    SetTimer(hWnd, 3, 8, NULL);
-    break;
-
   case WM_TIMER:
     SelectObject(hMemDC, hBm);
 
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
     SelectObject(hMemDC, GetStockObject(DC_PEN));
 
-    SelectObject(hMemDC, GetStockObject(WHITE_BRUSH));
+    SelectObject(hMemDC, GetStockObject(BLACK_BRUSH));
     Rectangle(hMemDC, 0, H, W, 0);
-    SelectObject(hMemDC, GetStockObject(BLACK_PEN));
-    GLB_Draw(hMemDC, 1.0);
+    SelectObject(hMemDC, GetStockObject(WHITE_BRUSH));
+    SelectObject(hMemDC, GetStockObject(NULL_PEN));
+    GLB_Draw(hMemDC, 2.0);
 
     GetLocalTime(&time);
     TextOut(hMemDC, W / 5, H / 5, Buf, wsprintf(Buf, "%02d:%02d:%02d", time.wHour, time.wMinute, time.wSecond));
