@@ -8,8 +8,11 @@ typedef DOUBLE DBL;
 
 #define PI 3.14159265
 
-#define GLB_GRID_W 20
-#define GLB_GRID_H 40
+#define GLB_GRID_W 10
+#define GLB_GRID_H 20
+
+#define GLB_MAX(A,B)((A) < (B) ? (B) : (A))
+#define GLB_MIN(A,B)((A) < (B) ? (A) : (B))
 
 typedef struct 
 {

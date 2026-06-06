@@ -4,9 +4,11 @@
 
 #include "globe.h"
 
+static VEC GLB_Geom[GLB_GRID_H][GLB_GRID_H],
+           GLB_NGeom[GLB_GRID_H][GLB_GRID_H];
+
 static DBL Ws, Hs;
-static VEC GLB_Geom[GLB_GRID_H][GLB_GRID_H];
-static INT GLB_Ws, GLB_Hs;
+static DBL GLB_Ws, GLB_Hs;
 static DBL ProjSize = 1, GLB_Wp, GLB_Hp, GLB_ProjDist = 1;
 
 /* Rotate vector around Z axis function.
@@ -69,6 +71,20 @@ static VEC RotateY( VEC P, DBL Angle )
   return NewP;
 } /* End of 'RotateY' function */
 
+COLORREF ColorTo255( VEC Color )
+{
+  INT
+    R = Color.X * 255,
+    G = Color.Y * 255,
+    B = Color.Z * 255;
+
+  R = GLB_MIN(255, GLB_MAX(0, R));
+  G = GLB_MIN(255, GLB_MAX(0, G));
+  B = GLB_MIN(255, GLB_MAX(0, B));
+
+  return RGB(R, G, B);
+}
+
 VOID GLB_Init( DBL R )
 {
   INT i, j;
@@ -84,6 +100,10 @@ VOID GLB_Init( DBL R )
       GLB_Geom[i][j].X = R * sin(theta) * sin(phi);
       GLB_Geom[i][j].Y = R * cos(theta);
       GLB_Geom[i][j].Z = R * sin(theta) * cos(phi);
+
+      GLB_NGeom[i][j].X = sin(theta) * sin(phi);
+      GLB_NGeom[i][j].Y = cos(theta);
+      GLB_NGeom[i][j].Z = sin(theta) * cos(phi);
     }
   }
 } /* End of 'GLB_Init' function */
@@ -102,8 +122,16 @@ VOID GLB_Resize( INT Ws, INT Hs )
 VOID GLB_Draw( HDC hMemDC, DBL Rs )
 {
   INT i, j;
-  DBL t = clock() * 10 / (DBL)CLOCKS_PER_SEC;
+  DBL t = clock() * 10 / (DBL)CLOCKS_PER_SEC, len;
   static POINT pnts[GLB_GRID_H][GLB_GRID_W];
+  VEC L = {1, 1, 1};
+
+  len = sqrt(L.X * L.X
+           + L.Y * L.Y
+           + L.Z * L.Z);
+  L.X /= len;
+  L.Y /= len;
+  L.Z /= len;
 
   for (i = 0; i < GLB_GRID_H; i++)
     for (j = 0; j < GLB_GRID_W; j++)
@@ -111,7 +139,7 @@ VOID GLB_Draw( HDC hMemDC, DBL Rs )
       DBL xp, yp;
       VEC P = GLB_Geom[i][j];
 
-      P = RotateX(P, t * 1);
+      P = RotateX(P, t * 3);
       P = RotateY(P, t * 1);
       P = RotateZ(P, t * 1);
 
@@ -124,12 +152,7 @@ VOID GLB_Draw( HDC hMemDC, DBL Rs )
       pnts[i][j].y = (INT)(GLB_Hs / 2 - yp * GLB_Hs / GLB_Hp);
     }
 
-  for (i = 0; i < GLB_GRID_H; i++)
-    for (j = 0; j < GLB_GRID_W; j++)
-      Ellipse(hMemDC, pnts[i][j].x - Rs, pnts[i][j].y - Rs,
-              pnts[i][j].x + Rs, pnts[i][j].y + Rs);
-
-  SelectObject(hMemDC, GetStockObject(WHITE_PEN));
+  SelectObject(hMemDC, GetStockObject(BLACK_PEN));
   for (i = 0; i < GLB_GRID_H; i++)
   {
     MoveToEx(hMemDC, pnts[i][0].x, pnts[i][0].y, NULL);
@@ -143,4 +166,39 @@ VOID GLB_Draw( HDC hMemDC, DBL Rs )
     for (i = 0; i < GLB_GRID_H; i++)
       LineTo(hMemDC, pnts[i][j].x, pnts[i][j].y);
   }
+
+  for (i = 0; i < GLB_GRID_H - 1; i++)
+    for (j = 0; j < GLB_GRID_W - 1; j++)
+    {
+      VEC N = GLB_NGeom[i][j],
+          C = {0.47, 0.8, 0.3};
+      DBL nl;
+      POINT pnt[4];
+      N = RotateX(N, t * 3);
+      N = RotateY(N, t * 3);
+      N = RotateZ(N, t * 3);
+
+      nl = N.X * L.X
+         + N.Y * L.Y
+         + N.Z * L.Z;
+      if (nl < 0.2)
+        nl = 0.2;
+
+      C.X *= nl;
+      C.Y *= nl;
+      C.Z *= nl;
+      SetDCBrushColor(hMemDC, ColorTo255(C));
+
+      pnt[0] = pnts[i][j];
+      pnt[1] = pnts[i][j + 1];
+      pnt[2] = pnts[i + 1][j + 1];
+      pnt[3] = pnts[i + 1][j];
+
+      if ((pnt[0].x - pnt[1].x) * (pnt[0].y + pnt[1].y)
+        + (pnt[1].x - pnt[2].x) * (pnt[1].y + pnt[2].y)
+        + (pnt[2].x - pnt[3].x) * (pnt[2].y + pnt[3].y)
+        + (pnt[3].x - pnt[0].x) * (pnt[3].y + pnt[0].y) >= 0)
+
+        Polygon(hMemDC, pnt, 4);
+    }
 } /* End of 'GLB_Draw' function */
