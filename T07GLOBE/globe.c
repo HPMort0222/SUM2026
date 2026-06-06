@@ -1,5 +1,6 @@
 /* Donik Vasilisa, 10-6, 06.06.2026 */
 #include <math.h>
+#include <stdio.h>
 #include <time.h>
 
 #include "globe.h"
@@ -71,12 +72,12 @@ static VEC RotateY( VEC P, DBL Angle )
   return NewP;
 } /* End of 'RotateY' function */
 
-COLORREF ColorTo255( VEC Color )
+COLORREF ColorTo255( VEC Color, INT I )
 {
   INT
-    R = Color.X * 255,
-    G = Color.Y * 255,
-    B = Color.Z * 255;
+    R = Color.X * 255 * (I % 6) - 70,
+    G = Color.Y * 255 * (I % 6) - 70,
+    B = Color.Z * 255 * (I % 6) - 70;
 
   R = GLB_MIN(255, GLB_MAX(0, R));
   G = GLB_MIN(255, GLB_MAX(0, G));
@@ -122,7 +123,7 @@ VOID GLB_Resize( INT Ws, INT Hs )
 VOID GLB_Draw( HDC hMemDC, DBL Rs )
 {
   INT i, j;
-  DBL t = clock() * 10 / (DBL)CLOCKS_PER_SEC, len;
+  DBL t = clock() / (DBL)CLOCKS_PER_SEC, len;
   static POINT pnts[GLB_GRID_H][GLB_GRID_W];
   VEC L = {1, 1, 1};
 
@@ -140,43 +141,29 @@ VOID GLB_Draw( HDC hMemDC, DBL Rs )
       VEC P = GLB_Geom[i][j];
 
       P = RotateX(P, t * 3);
-      P = RotateY(P, t * 1);
-      P = RotateZ(P, t * 1);
+      P = RotateY(P, t);
+      P = RotateZ(P, t);
 
       P.Z -= 1;
 
       xp = P.X * GLB_ProjDist / -P.Z;
       yp = P.Y * GLB_ProjDist / -P.Z;
 
-      pnts[i][j].x = (INT)(GLB_Ws / 2 + xp * GLB_Ws / GLB_Wp);
+      pnts[i][j].x = (INT)(GLB_Ws / 2 + xp * GLB_Ws / GLB_Wp + 4 * P.Z);
       pnts[i][j].y = (INT)(GLB_Hs / 2 - yp * GLB_Hs / GLB_Hp);
     }
 
-  SelectObject(hMemDC, GetStockObject(BLACK_PEN));
-  for (i = 0; i < GLB_GRID_H; i++)
-  {
-    MoveToEx(hMemDC, pnts[i][0].x, pnts[i][0].y, NULL);
-    for (j = 0; j < GLB_GRID_W; j++)
-      LineTo(hMemDC, pnts[i][j].x, pnts[i][j].y);
-  }
-
-  for (j = 0; j < GLB_GRID_W; j++)
-  {
-    MoveToEx(hMemDC, pnts[0][j].x, pnts[0][j].y, NULL);
-    for (i = 0; i < GLB_GRID_H; i++)
-      LineTo(hMemDC, pnts[i][j].x, pnts[i][j].y);
-  }
-
+  SelectObject(hMemDC, GetStockObject(DC_BRUSH));
   for (i = 0; i < GLB_GRID_H - 1; i++)
     for (j = 0; j < GLB_GRID_W - 1; j++)
     {
       VEC N = GLB_NGeom[i][j],
-          C = {0.47, 0.8, 0.3};
+          C = {0.34, 0.21, 0.6};
       DBL nl;
       POINT pnt[4];
       N = RotateX(N, t * 3);
-      N = RotateY(N, t * 3);
-      N = RotateZ(N, t * 3);
+      N = RotateY(N, sin(t * 3));
+      N = RotateZ(N, cos(t));
 
       nl = N.X * L.X
          + N.Y * L.Y
@@ -187,7 +174,8 @@ VOID GLB_Draw( HDC hMemDC, DBL Rs )
       C.X *= nl;
       C.Y *= nl;
       C.Z *= nl;
-      SetDCBrushColor(hMemDC, ColorTo255(C));
+
+      SetDCBrushColor(hMemDC, ColorTo255(C, i + t * 10));
 
       pnt[0] = pnts[i][j];
       pnt[1] = pnts[i][j + 1];
