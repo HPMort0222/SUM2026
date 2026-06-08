@@ -1,5 +1,6 @@
 /* Donik Vasilisa, 10-6, 06.06.2026 */
 
+#include <time.h>
 #include "globe.h"
 
 #define WND_CLASS_NAME "My super-puper proj"
@@ -19,7 +20,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
   wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-  wc.hCursor = LoadCursor(NULL, IDC_APPSTARTING);
+  wc.hCursor = LoadCursor(NULL, IDI_QUESTION);
   wc.hIcon = LoadIcon(NULL, IDI_SHIELD);
   wc.lpszMenuName = NULL;
   wc.lpszClassName = WND_CLASS_NAME;
@@ -54,20 +55,28 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
   PAINTSTRUCT pt;
   POINT p;
   CHAR Buf[100];
+  INT t;
   SYSTEMTIME time;
   static INT W, H, is_flag = 0;
   static HDC hMemDC;
   static BITMAP bm;
   static HBITMAP hBm;
+  static INT StartTime, FrameCount;
+  static DBL FPS = 30;
 
   switch (Msg)
   {
   case WM_CREATE:
     hDc = GetDC(hWnd);
     hMemDC = CreateCompatibleDC(hDc);
+
     GLB_Init(0.3);
+
     ReleaseDC(hWnd, hDc);
     SetTimer(hWnd, 50, 1, NULL);
+
+    FrameCount = 30;
+    StartTime = clock();
     break;
 
   case WM_SIZE:
@@ -107,6 +116,15 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
     return 0;
 
   case WM_TIMER:
+    FrameCount++;
+    t = clock();
+    if (t - StartTime > CLOCKS_PER_SEC)
+    {
+      FPS = FrameCount / ((t - StartTime) / (DBL)CLOCKS_PER_SEC);
+      FrameCount = 0;
+      StartTime = t;
+    }
+
     SelectObject(hMemDC, hBm);
 
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
@@ -120,6 +138,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 
     GetLocalTime(&time);
     TextOut(hMemDC, W / 5, H / 5, Buf, wsprintf(Buf, "%02d:%02d:%02d", time.wHour, time.wMinute, time.wSecond));
+    TextOut(hMemDC, W / 7, H / 7, Buf, sprintf(Buf, "FPS : %05f", FPS));
     GetCursorPos(&p);
     ScreenToClient(hWnd, &p);
     Ellipse(hMemDC, p.x - 5, p.y - 5, p.x + 5, p.y + 5);

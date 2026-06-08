@@ -12,15 +12,7 @@ static DBL Ws, Hs;
 static DBL GLB_Ws, GLB_Hs;
 static DBL ProjSize = 1, GLB_Wp, GLB_Hp, GLB_ProjDist = 1;
 
-/* Rotate vector around Z axis function.
- * ARGUMENTS:
- *   - vector coordinates:
- *       VEC P;
- *   - rotation angle in degrees:
- *       DBL Angle;
- * RETURNS:
- *   (VEC) rotated vector.
- */
+/*
 static VEC RotateZ( VEC P, DBL Angle )
 {
   VEC NewP;
@@ -30,17 +22,8 @@ static VEC RotateZ( VEC P, DBL Angle )
   NewP.Y = P.X * si + P.Y * co;
   NewP.Z = P.Z;
   return NewP;
-} /* End of 'RotateZ' function */
- 
-/* Rotate vector around X axis function.
- * ARGUMENTS:
- *   - vector coordinates:
- *       VEC P;
- *   - rotation angle in degrees:
- *       DBL Angle;
- * RETURNS:
- *   (VEC) rotated vector.
- */
+}
+
 static VEC RotateX( VEC P, DBL Angle )
 {
   VEC NewP;
@@ -50,17 +33,8 @@ static VEC RotateX( VEC P, DBL Angle )
   NewP.Y = P.Y * co - P.Z * si;
   NewP.Z = P.Y * si + P.Z * co;
   return NewP;
-} /* End of 'RotateX' function */
+}
 
-/* Rotate vector around Y axis function.
- * ARGUMENTS:
- *   - vector coordinates:
- *       VEC P;
- *   - rotation angle in degrees:
- *       DBL Angle;
- * RETURNS:
- *   (VEC) rotated vector.
- */
 static VEC RotateY( VEC P, DBL Angle )
 {
   VEC NewP;
@@ -70,7 +44,8 @@ static VEC RotateY( VEC P, DBL Angle )
   NewP.Y = P.Y;
   NewP.Z = P.Z * co - P.X * si;
   return NewP;
-} /* End of 'RotateY' function */
+} 
+*/
 
 COLORREF ColorTo255( VEC Color, INT I )
 {
@@ -98,13 +73,24 @@ VOID GLB_Init( DBL R )
     {
       DBL phi = j * 2 * PI / (GLB_GRID_W - 1);
 
-      GLB_Geom[i][j].X = R * sin(theta) * sin(phi);
+      GLB_Geom[i][j].X = 0.8 * R * sin(theta) * sin(phi);
       GLB_Geom[i][j].Y = R * cos(theta);
-      GLB_Geom[i][j].Z = R * sin(theta) * cos(phi);
+      GLB_Geom[i][j].Z = 0.8 * R * sin(theta) * cos(phi);
 
       GLB_NGeom[i][j].X = sin(theta) * sin(phi);
       GLB_NGeom[i][j].Y = cos(theta);
       GLB_NGeom[i][j].Z = sin(theta) * cos(phi);
+    }
+  }
+
+  for (i = 0; i < GLB_GRID_H; i++)
+  {
+    for (j = 0; j < GLB_GRID_W; j++)
+    {
+      VEC N1 = VecCrossVec(VecSubVec(GLB_NGeom[i][j + 1], GLB_NGeom[i][j]), VecSubVec(GLB_NGeom[i + 1][j], GLB_NGeom[i][j]));
+      VEC N2 = VecCrossVec(VecSubVec(GLB_NGeom[i][j + 1], GLB_NGeom[i][j]), VecSubVec(GLB_NGeom[i + 1][j], GLB_NGeom[i][j]));
+      GLB_NGeom[i][j] = VecNeg(VecNormalize(VecAddVec(N1, N2)));
+      
     }
   }
 } /* End of 'GLB_Init' function */
@@ -123,27 +109,20 @@ VOID GLB_Resize( INT Ws, INT Hs )
 VOID GLB_Draw( HDC hMemDC, DBL Rs )
 {
   INT i, j;
-  DBL t = clock() / (DBL)CLOCKS_PER_SEC, len;
+  DBL t = clock() / (DBL)CLOCKS_PER_SEC;
+  MATR m;
+  VEC L, P, N;
   static POINT pnts[GLB_GRID_H][GLB_GRID_W];
-  VEC L = {1, 1, 1};
 
-  len = sqrt(L.X * L.X
-           + L.Y * L.Y
-           + L.Z * L.Z);
-  L.X /= len;
-  L.Y /= len;
-  L.Z /= len;
+  L = VecNormalize(VecSet(1, 1, sin(t)));
+
+  m = MatrMulMatr4(MatrRotateX(sin(t)), MatrRotateY(sin(t)), MatrRotateZ(3 * sin(t)), MatrTranslate(VecSet(0, 0, 0)));
 
   for (i = 0; i < GLB_GRID_H; i++)
     for (j = 0; j < GLB_GRID_W; j++)
     {
       DBL xp, yp;
-      VEC P = GLB_Geom[i][j];
-
-      P = RotateX(P, t * 3);
-      P = RotateY(P, t);
-      P = RotateZ(P, t);
-
+      P =  VectorTransform(GLB_Geom[i][j], m);
       P.Z -= 1;
 
       xp = P.X * GLB_ProjDist / -P.Z;
@@ -157,36 +136,29 @@ VOID GLB_Draw( HDC hMemDC, DBL Rs )
   for (i = 0; i < GLB_GRID_H - 1; i++)
     for (j = 0; j < GLB_GRID_W - 1; j++)
     {
-      VEC N = GLB_NGeom[i][j],
-          C = {0.34, 0.21, 0.6};
+      VEC C = {0.34, 0.21, 0.6};
       DBL nl;
       POINT pnt[4];
-      N = RotateX(N, t * 3);
-      N = RotateY(N, sin(t * 3));
-      N = RotateZ(N, cos(t));
 
-      nl = N.X * L.X
-         + N.Y * L.Y
-         + N.Z * L.Z;
+      N = VectorTransform(GLB_NGeom[i][j], m);
+
+      nl = VecDotVec(N, L);
       if (nl < 0.2)
         nl = 0.2;
 
-      C.X *= nl;
-      C.Y *= nl;
-      C.Z *= nl;
-
-      SetDCBrushColor(hMemDC, ColorTo255(C, i + t * 10));
+      C = VecMulNum(C, nl);
 
       pnt[0] = pnts[i][j];
       pnt[1] = pnts[i][j + 1];
       pnt[2] = pnts[i + 1][j + 1];
       pnt[3] = pnts[i + 1][j];
 
+      SetDCBrushColor(hMemDC, ColorTo255(C, i + t * 10));
+
       if ((pnt[0].x - pnt[1].x) * (pnt[0].y + pnt[1].y)
         + (pnt[1].x - pnt[2].x) * (pnt[1].y + pnt[2].y)
         + (pnt[2].x - pnt[3].x) * (pnt[2].y + pnt[3].y)
         + (pnt[3].x - pnt[0].x) * (pnt[3].y + pnt[0].y) >= 0)
-
         Polygon(hMemDC, pnt, 4);
     }
 } /* End of 'GLB_Draw' function */

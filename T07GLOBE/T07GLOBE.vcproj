@@ -187,6 +187,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MTH.h"
+				>
+			</File>
+			<File
 				RelativePath=".\t07globe.c"
 				>
 			</File>
