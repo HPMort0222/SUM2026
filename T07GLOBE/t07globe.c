@@ -1,7 +1,6 @@
 /* Donik Vasilisa, 10-6, 06.06.2026 */
-
-#include <time.h>
 #include "globe.h"
+#include "timer.h"
 
 #define WND_CLASS_NAME "My super-puper proj"
 
@@ -9,7 +8,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hwnd, UINT Msg,
                                WPARAM wparam,LPARAM lparam );
 
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
-                   CHAR *CmdLine, INT ShowCmd )
+                    CHAR *CmdLine, INT ShowCmd )
 {
   WNDCLASS wc;
   MSG msg;
@@ -55,14 +54,11 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
   PAINTSTRUCT pt;
   POINT p;
   CHAR Buf[100];
-  INT t;
   SYSTEMTIME time;
   static INT W, H, is_flag = 0;
   static HDC hMemDC;
   static BITMAP bm;
   static HBITMAP hBm;
-  static INT StartTime, FrameCount;
-  static DBL FPS = 30;
 
   switch (Msg)
   {
@@ -70,13 +66,11 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
     hDc = GetDC(hWnd);
     hMemDC = CreateCompatibleDC(hDc);
 
-    GLB_Init(0.3);
-
     ReleaseDC(hWnd, hDc);
     SetTimer(hWnd, 50, 1, NULL);
 
-    FrameCount = 30;
-    StartTime = clock();
+    GLB_TimerInit();
+    GLB_Init(0.3);
     break;
 
   case WM_SIZE:
@@ -116,15 +110,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
     return 0;
 
   case WM_TIMER:
-    FrameCount++;
-    t = clock();
-    if (t - StartTime > CLOCKS_PER_SEC)
-    {
-      FPS = FrameCount / ((t - StartTime) / (DBL)CLOCKS_PER_SEC);
-      FrameCount = 0;
-      StartTime = t;
-    }
-
+    GLB_TimerResponse();
     SelectObject(hMemDC, hBm);
 
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
@@ -138,7 +124,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 
     GetLocalTime(&time);
     TextOut(hMemDC, W / 5, H / 5, Buf, wsprintf(Buf, "%02d:%02d:%02d", time.wHour, time.wMinute, time.wSecond));
-    TextOut(hMemDC, W / 7, H / 7, Buf, sprintf(Buf, "FPS : %05f", FPS));
+    TextOut(hMemDC, W / 7, H / 7, Buf, sprintf(Buf, "FPS : %05f", GLB_FPS));
     GetCursorPos(&p);
     ScreenToClient(hWnd, &p);
     Ellipse(hMemDC, p.x - 5, p.y - 5, p.x + 5, p.y + 5);

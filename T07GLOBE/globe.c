@@ -12,41 +12,6 @@ static DBL Ws, Hs;
 static DBL GLB_Ws, GLB_Hs;
 static DBL ProjSize = 1, GLB_Wp, GLB_Hp, GLB_ProjDist = 1;
 
-/*
-static VEC RotateZ( VEC P, DBL Angle )
-{
-  VEC NewP;
-  DBL a = Angle * PI / 180, si = sin(a), co = cos(a);
- 
-  NewP.X = P.X * co - P.Y * si;
-  NewP.Y = P.X * si + P.Y * co;
-  NewP.Z = P.Z;
-  return NewP;
-}
-
-static VEC RotateX( VEC P, DBL Angle )
-{
-  VEC NewP;
-  DBL a = Angle * PI / 180, si = sin(a), co = cos(a);
- 
-  NewP.X = P.X;
-  NewP.Y = P.Y * co - P.Z * si;
-  NewP.Z = P.Y * si + P.Z * co;
-  return NewP;
-}
-
-static VEC RotateY( VEC P, DBL Angle )
-{
-  VEC NewP;
-  DBL a = Angle * PI / 180, si = sin(a), co = cos(a);
- 
-  NewP.X = P.Z * si + P.X * co;
-  NewP.Y = P.Y;
-  NewP.Z = P.Z * co - P.X * si;
-  return NewP;
-} 
-*/
-
 COLORREF ColorTo255( VEC Color, INT I )
 {
   INT

@@ -1,0 +1,6 @@
+123, Parity: even 
+132, Parity: odd 
+213, Parity: even 
+231, Parity: odd 
+321, Parity: even 
+312, Parity: odd 
