@@ -38,8 +38,6 @@ VOID VD6_RndResize( INT W, INT H )
 
   /* пересчитываем проекию */
   VD6_RndProjSet();
-
-
 }
 
 VOID VD6_RndCopyFrame( HDC hDC )

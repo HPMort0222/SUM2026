@@ -116,5 +116,18 @@ BOOL VD6_RndPrimLoad( vd6PRIM *Pr, CHAR *FileName );
  */
 BOOL VD6_RndPrimCreateSphere( vd6PRIM *Pr, DBL R, INT W, INT H );
 
+BOOL VD6_RndPrimCreateCylinder( vd6PRIM *Pr, DBL R, INT W, INT H );
+
+/* Primitive free function.
+ * ARGUMENTS:
+ *   - primitive to be load:
+ *       vg4PRIM *Pr;
+ *   - primitve filename (.OBJ):
+ *       CHAR *FileName;
+ * RETURNS:
+ *   (BOOL) TRUE if success, FLASE otherwise.
+ */
+BOOL VD6_RndPrimLoad( vd6PRIM *Pr, CHAR *FileName );
+
 #endif /* __rnd_h_ */
 

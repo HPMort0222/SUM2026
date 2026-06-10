@@ -62,7 +62,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 {
   HDC hDC;
   PAINTSTRUCT ps;
-  static vd6PRIM Pr, Pr1;
+  static vd6PRIM Pr1, Pr2;
 
   switch (Msg)
   {
@@ -70,22 +70,8 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
     VD6_RndInit(hWnd);
 
     SetTimer(hWnd, 50, 1, NULL);
-    if (VD6_RndPrimCreate(&Pr, 4, 6))
-    {
-      Pr.V[0].P = VecSet(0, 0, 0);
-      Pr.V[1].P = VecSet(2, 0, 0);
-      Pr.V[2].P = VecSet(0, 2, 0);
-      Pr.V[3].P = VecSet( 2, 2, 0);
-
-      Pr.I[0] = 0;
-      Pr.I[1] = 1;
-      Pr.I[2] = 2;
-
-      Pr.I[3] = 2;
-      Pr.I[4] = 1;
-      Pr.I[5] = 3;
-    }
-    VD6_RndPrimCreateSphere(&Pr1, 1, 30, 15);
+    VD6_RndPrimLoad(&Pr2, "./bin/model/cow.obj");
+    VD6_RndPrimCreateCylinder(&Pr1, 3, 30, 4);
     return 0;
 
   case WM_SIZE:
@@ -95,8 +81,8 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 
   case WM_TIMER:
     VD6_RndStart();
-    VD6_RndPrimDraw(&Pr, MatrRotateY(30 * clock() / 1000));
-    VD6_RndPrimDraw(&Pr1, MatrRotateY(60 * clock() / 1000));
+    VD6_RndPrimDraw(&Pr1, MatrMulMatr(MatrRotateY(60 * clock() / 1000), MatrTranslate(VecSet(-10, -20, 0))));
+    VD6_RndPrimDraw(&Pr2, MatrMulMatr(MatrRotateZ(60 * clock() / 1000), MatrTranslate(VecSet(-10, -20, -20))));
     VD6_RndEnd();
 
     hDC = GetDC(hWnd);
@@ -115,7 +101,6 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 
   case WM_DESTROY:
     VD6_RndPrimFree(&Pr1);
-    VD6_RndPrimFree(&Pr);
     VD6_RndClose();
     PostQuitMessage(0);
     KillTimer(hWnd, 30);
