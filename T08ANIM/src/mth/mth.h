@@ -1,14 +1,14 @@
-/* Donik Vasilisa, 10-6, 06.06.2026 */
-
 /* FILE NAME: mth.h
  * PURPOSE: 3D math implementation module.
  * PROGRAMMER: VG4
  * DATE: 08.06.2026
  */
+
 #ifndef __mth_h_
 #define __mth_h_
 
 #include <math.h>
+
 #include <windows.h>
 
 /* Pi math constant */
@@ -19,8 +19,8 @@
 #define Degree2Radian(a) D2R(a)
 
 #define VecAddVec3(A, B, C) VecAddVec(A, VecAddVec(B, C))
-#define VecAddVec4(A, B, C, Â) VecAddVec(VecAddVec(A, B), VecAddVec(C, D))
-#define MatrMulMatr3(A, B, C) MatrMulMatr(A, (B, C))
+#define VecAddVec4(A, B, C, D) VecAddVec(VecAddVec(A, B), VecAddVec(C, D))
+#define MatrMulMatr3(A, B, C) MatrMulMatr(A, MatrMulMatr(B, C))
 #define MatrMulMatr4(A, B, C, D) MatrMulMatr(MatrMulMatr(A, B), MatrMulMatr(C, D))
 
 #define UnitMatrix \
@@ -155,8 +155,8 @@ __inline DBL VecDotVec( VEC V1, VEC V2 )
 __inline VEC VecCrossVec( VEC V1, VEC V2 )
 {
   return VecSet(V1.Y * V2.Z - V1.Z * V2.Y,
-                V1.X * V2.Z - V1.Z * V2.X,
-                V1.X * V2.Y - V1.X * V2.Y);
+                V1.Z * V2.X - V1.X * V2.Z,
+                V1.X * V2.Y - V1.Y * V2.X);
 } /* End of 'VecCrossVec' function */
 
 __inline DBL VecLen( VEC V )
@@ -334,26 +334,40 @@ __inline MATR MatrScale( VEC S )
 
 __inline MATR MatrRotateX( DBL AngleInDegree )
 {
-  return MatrSet(1, 0,                   0,                  0,
-                 0, cos(AngleInDegree),  sin(AngleInDegree), 0,
-                 0, -sin(AngleInDegree), cos(AngleInDegree), 0,
-                 0, 0,                   0,                  1);
+  DBL co, si;
+
+  AngleInDegree = D2R(AngleInDegree);
+  co = cos(AngleInDegree), si = sin(AngleInDegree);
+
+  return MatrSet(1, 0,   0,  0,
+                 0, co,  si, 0,
+                 0, -si, co, 0,
+                 0, 0,   0,  1);
 } /* End of 'VecMulNum' function */
 
 __inline MATR MatrRotateY( DBL AngleInDegree )
 {
-  return MatrSet(cos(AngleInDegree),   0, sin(AngleInDegree), 0,
-                 0,                    1,                  0, 0,
-                 sin(AngleInDegree),   0, cos(AngleInDegree), 0,
-                 0,                    0, 0,                  1);
+  DBL co, si;
+
+  AngleInDegree = D2R(AngleInDegree);
+  co = cos(AngleInDegree), si = sin(AngleInDegree);
+
+  return MatrSet(co,   0,  -si, 0,
+                 0,    1,  0,   0,
+                 si,   0,  co,  0,
+                 0,    0,  0,   1);
 } /* End of 'VecMulNum' function */
 
 __inline MATR MatrRotateZ( DBL AngleInDegree )
 {
-  return MatrSet(cos(AngleInDegree),   sin(AngleInDegree), 0, 0,
-                 -sin(AngleInDegree),  cos(AngleInDegree), 0, 0,
-                 0,                    0,                  1, 0,
-                 0,                    0,                  0, 1);
+  DBL co, si;
+
+  AngleInDegree = D2R(AngleInDegree);
+  co = cos(AngleInDegree), si = sin(AngleInDegree);
+  return MatrSet(co,   si, 0, 0,
+                 -si,  co, 0, 0,
+                 0,     0, 1, 0,
+                 0,     0, 0, 1);
 } /* End of 'VecMulNum' function */
 
 __inline MATR MatrRotate( DBL AngleInDegree, VEC V )

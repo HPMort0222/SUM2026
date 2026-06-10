@@ -4,14 +4,14 @@
 VOID VD6_RndInit( HWND hWnd )
 {
   HDC hDC = GetDC(hWnd);
+
   VD6_hRndDCFrame = CreateCompatibleDC(hDC);
+  ReleaseDC(hWnd, hDC);
 
   VD6_hRndWnd = hWnd;
-  ReleaseDC(VD6_hRndWnd, VD6_hRndDCFrame);
 
   VD6_hRndBmFrame = NULL;
   VD6_RndResize(100, 100);
-
   VD6_RndCamSet(VecSetAll(5), VecSetAll(0), VecSet(0, 1, 0));
 }
 
@@ -27,7 +27,10 @@ VOID VD6_RndResize( INT W, INT H )
 
   if (VD6_hRndBmFrame != NULL)
     DeleteObject(VD6_hRndBmFrame);
-  VD6_hRndBmFrame = CreateCompatibleBitmap(VD6_hRndDCFrame, W, H);
+  VD6_hRndBmFrame = CreateCompatibleBitmap(hDC, W, H);
+  ReleaseDC(VD6_hRndWnd, hDC);
+
+  SelectObject(VD6_hRndDCFrame, VD6_hRndBmFrame);
 
   /* сохраняем размеры */
   VD6_RndFrameW = W;
@@ -36,8 +39,6 @@ VOID VD6_RndResize( INT W, INT H )
   /* пересчитываем проекию */
   VD6_RndProjSet();
 
-  ReleaseDC(VD6_hRndWnd, VD6_hRndDCFrame);
-  SelectObject(VD6_hRndDCFrame, VD6_hRndBmFrame);
 
 }
 
@@ -53,7 +54,9 @@ VOID VD6_RndStart( VOID )
   Rectangle(VD6_hRndDCFrame, 0, VD6_RndFrameH, VD6_RndFrameW, 0);
 }
 
-VOID VD6_RndEnd( VOID );
+VOID VD6_RndEnd( VOID )
+{
+}
 
 VOID VD6_RndProjSet( VOID )
 {

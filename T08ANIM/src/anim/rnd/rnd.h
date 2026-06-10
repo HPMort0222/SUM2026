@@ -1,4 +1,9 @@
-/* Donik Vasilisa, 10-6, 06.06.2026 */
+/* FILE NAME: mth.h
+ * PURPOSE: 3D render declaration module.
+ * PROGRAMMER: VG4
+ * DATE: 08.06.2026
+ */
+
 #ifndef __rnd_h_
 #define __rnd_h_
 
@@ -19,11 +24,17 @@ extern MATR
            VD6_RndMatrProj,              /* Projection coordinate system matrix */
            VD6_RndMatrVP;                /* Stored (View * Proj) matrix */
 
+/***
+ *  Primitive handle
+ ***/
+
+/* Vertex representation type */
 typedef struct tagvd6VERTEX
 {
   VEC P;  /* Vertex position */
 } vd6VERTEX;
 
+/* Primitive representation type */
 typedef struct tagvd6PRIM
 {
   vd6VERTEX *V; /* Vertex attributes array */
@@ -52,11 +63,58 @@ VOID VD6_RndProjSet( VOID );
 
 VOID VD6_RndCamSet( VEC Loc, VEC At, VEC Up );
 
-VOID VD6_RndPrimDraw( vd6PRIM *Pr, MATR World );
+/* Primitive create function.
+ * ARGUMENTS:
+ *   - primitive to be create:
+ *       vg4PRIM *Pr;
+ *   - number of vertecis and indices:
+ *       INT NoofV, NoofI;
+ * RETURNS:
+ *   (BOOL) TRUE if success, FLASE otherwise.
+ */
+BOOL VD6_RndPrimCreate( vd6PRIM *Pr, INT NoofV, INT NoofI );
 
+/* Primitive free function.
+ * ARGUMENTS:
+ *   - primitive to be free:
+ *       vg4PRIM *Pr;
+ * RETURNS: None.
+ */
 VOID VD6_RndPrimFree( vd6PRIM *Pr );
 
-BOOL VD6_RndPrimCreate( vd6PRIM *Pr, INT NoofV, INT NoofI );
+/* Primitive draw function.
+ * ARGUMENTS:
+ *   - primitive to be draw:
+ *       vg4PRIM *Pr;
+ *   - transformation matrix:
+ *       MATR World;
+ * RETURNS: None.
+ */
+VOID VD6_RndPrimDraw( vd6PRIM *Pr, MATR World );
+
+/* Primitive load function.
+ * ARGUMENTS:
+ *   - primitive to be load:
+ *       vg4PRIM *Pr;
+ *   - primitve filename (.OBJ):
+ *       CHAR *FileName;
+ * RETURNS:
+ *   (BOOL) TRUE if success, FLASE otherwise.
+ */
+BOOL VD6_RndPrimLoad( vd6PRIM *Pr, CHAR *FileName );
+
+/* Create sphere primitive function.
+ * ARGUMENTS:
+ *   - pointer to primitive to create:
+ *       vg4PRIM *Pr;
+ *   - sphere radius:
+ *       DBL R;
+ *   - split parts counts:
+ *       INT W, H;
+ * RETURNS:
+ *   (BOOL) TRUE if success, FALSE otherwise.
+ */
+BOOL VD6_RndPrimCreateSphere( vd6PRIM *Pr, DBL R, INT W, INT H );
 
 #endif /* __rnd_h_ */
 

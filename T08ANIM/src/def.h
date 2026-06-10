@@ -18,11 +18,11 @@
 #else /* NDEBUG */
 #  define SetDbgMemHooks() ((void)0)
 #endif /* NDEBUG */
-
-#include <windows.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include "mth/mth.h"
+
+typedef unsigned long long UINT64;
+typedef long long INT64;
 
 #endif /* __def_h_ */

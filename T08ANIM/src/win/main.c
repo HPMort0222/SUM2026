@@ -1,5 +1,7 @@
 /* Donik Vasilisa, 10-6, 06.06.2026 */
-#include "def.h"
+
+#include <time.h>
+
 #include "anim/rnd/rnd.h"
 
 #define WND_CLASS_NAME "My super-puper proj"
@@ -13,6 +15,9 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
   WNDCLASS wc;
   MSG msg;
   HWND hWnd;
+  MATR m;
+
+  m = MatrView(VecSet(0, 0, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
 
   SetDbgMemHooks();
 
@@ -39,33 +44,38 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
     1500, 100, 500, 300, NULL, NULL, hInstance, NULL);
 
   /* Main Program Loop */
-  while (GetMessage(&msg, NULL, 0, 0))
-  {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
+  while (TRUE)
+    if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+      if (msg.message == WM_QUIT)
+        break;
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
+    else
+      SendMessage(hWnd, WM_TIMER, 50, 0);
   return 0;
 }
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
                                WPARAM wParam, LPARAM lParam )
 {
-  HDC hDc;
+  HDC hDC;
   PAINTSTRUCT ps;
-  static INT W, H;
-  static vd6PRIM Pr;
+  static vd6PRIM Pr, Pr1;
 
   switch (Msg)
   {
   case WM_CREATE:
     VD6_RndInit(hWnd);
 
+    SetTimer(hWnd, 50, 1, NULL);
     if (VD6_RndPrimCreate(&Pr, 4, 6))
     {
       Pr.V[0].P = VecSet(0, 0, 0);
       Pr.V[1].P = VecSet(2, 0, 0);
       Pr.V[2].P = VecSet(0, 2, 0);
-      Pr.V[3].P = VecSet(2, 2, 0);
+      Pr.V[3].P = VecSet( 2, 2, 0);
 
       Pr.I[0] = 0;
       Pr.I[1] = 1;
@@ -75,6 +85,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
       Pr.I[4] = 1;
       Pr.I[5] = 3;
     }
+    VD6_RndPrimCreateSphere(&Pr1, 1, 30, 15);
     return 0;
 
   case WM_SIZE:
@@ -84,23 +95,30 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 
   case WM_TIMER:
     VD6_RndStart();
-    hDc = GetDC(hWnd);
     VD6_RndPrimDraw(&Pr, MatrRotateY(30 * clock() / 1000));
-    ReleaseDC(hWnd, hDc);
+    VD6_RndPrimDraw(&Pr1, MatrRotateY(60 * clock() / 1000));
+    VD6_RndEnd();
+
+    hDC = GetDC(hWnd);
+    VD6_RndCopyFrame(hDC);
+    ReleaseDC(hWnd, hDC);
     return 0;
 
   case WM_ERASEBKGND:
     return 1;
 
   case WM_PAINT:
-    hDc = BeginPaint(hWnd, &ps);
-    VD6_RndCopyFrame(hDc);
+    hDC = BeginPaint(hWnd, &ps);
+    VD6_RndCopyFrame(hDC);
     EndPaint(hWnd, &ps);
     return 0;
 
   case WM_DESTROY:
-    VD6_RndClose();
+    VD6_RndPrimFree(&Pr1);
     VD6_RndPrimFree(&Pr);
+    VD6_RndClose();
+    PostQuitMessage(0);
+    KillTimer(hWnd, 30);
   }
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 } /* End of 'MyWindowFunc' func */
