@@ -1,6 +1,7 @@
 /* Donik Vasilisa, 10-6, 06.06.2026 */
 
 #include "timer.h"
+#include "anim.h"
 
 static UINT64
     StartTime,    /* Start program time */
@@ -9,13 +10,6 @@ static UINT64
     PauseTime,    /* Time during pause period */
     TimePerSec,   /* Timer resolution */
     FrameCounter; /* Frames counter */
-
-DOUBLE
-      VD6_GlobalTime, VD6_GlobalDeltaTime, /* Global time and interframe interval */
-      VD6_Time, VD6_DeltaTime,             /* Time with pause and interframe interval */
-      VD6_FPS;                             /* Frames per second value */
-BOOL
-    VD6_IsPause;                           /* Pause flag */
 
 VOID VD6_TimerInit( VOID )
 {
@@ -29,9 +23,9 @@ VOID VD6_TimerInit( VOID )
 
   PauseTime = 0;
   FrameCounter = 0;
-  VD6_IsPause = FALSE;
-  VD6_Time = VD6_DeltaTime = 0;
-  VD6_FPS = 30;
+  VD6_Anim.IsPause = FALSE;
+  VD6_Anim.Time = VD6_Anim.DeltaTime = 0;
+  VD6_Anim.FPS = 30;
 }
 
 VOID VD6_TimerResponse( VOID )
@@ -41,17 +35,17 @@ VOID VD6_TimerResponse( VOID )
   QueryPerformanceCounter(&t);
 
   /* Global time */
-  VD6_GlobalTime = (DOUBLE)(t.QuadPart - StartTime) / TimePerSec;
-  VD6_GlobalDeltaTime = (DOUBLE)(t.QuadPart - OldTime) / TimePerSec;
+  VD6_Anim.GlobalTime = (DOUBLE)(t.QuadPart - StartTime) / TimePerSec;
+  VD6_Anim.GlobalDeltaTime = (DOUBLE)(t.QuadPart - OldTime) / TimePerSec;
   /* Time with pause */
-  if (!VD6_IsPause)
+  if (!VD6_Anim.IsPause)
   {
-    VD6_Time = (DOUBLE)(t.QuadPart - PauseTime - StartTime) / TimePerSec;
-    VD6_DeltaTime = VD6_DeltaTime;
+    VD6_Anim.Time = (DOUBLE)(t.QuadPart - PauseTime - StartTime) / TimePerSec;
+    VD6_Anim.DeltaTime = VD6_Anim.GlobalDeltaTime;
   }
   else
   {
-    VD6_DeltaTime = 0;
+    VD6_Anim.DeltaTime = 0;
     PauseTime += t.QuadPart - OldTime;
   }
 
@@ -59,7 +53,7 @@ VOID VD6_TimerResponse( VOID )
   FrameCounter++;
   if (t.QuadPart - OldTimeFPS > 3 * TimePerSec)
   {
-    VD6_FPS = FrameCounter * TimePerSec / (DOUBLE)(t.QuadPart - OldTimeFPS);
+    VD6_Anim.FPS = FrameCounter * TimePerSec / (DOUBLE)(t.QuadPart - OldTimeFPS);
     OldTimeFPS = t.QuadPart;
     FrameCounter = 0;
   }

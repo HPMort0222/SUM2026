@@ -22,7 +22,6 @@ static VOID VD6_UnitInit( vd6UNIT *Uni, vd6ANIM *Ani )
  */
 static VOID VD6_UnitClose( vd6UNIT *Uni, vd6ANIM *Ani )
 {
-
 } /* End of 'VG4_UnitClose' function */
 
 /* Unit inter frame events handle function.

@@ -1,7 +1,5 @@
 /* Donik Vasilisa, 10-6, 06.06.2026 */
 
-#include <time.h>
-
 #include "units/units.h"
 
 #define WND_CLASS_NAME "My super-puper proj"
@@ -16,6 +14,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
   MSG msg;
   HWND hWnd;
   MATR m;
+  INT i;
 
   m = MatrView(VecSet(0, 0, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
 
@@ -43,7 +42,11 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
   hWnd = CreateWindow(WND_CLASS_NAME, "Press me..", WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
     1500, 100, 500, 300, NULL, NULL, hInstance, NULL);
 
-  VD6_AnimAddUnit(VD6_AnimUnitCreateBBalls());
+  srand(30);
+  for (i = 0; i < 10; i++)
+    VD6_AnimAddUnit(VD6_AnimUnitCreateBBalls());
+  VD6_AnimAddUnit(VD6_AnimUnitCreateCow());
+  VD6_AnimAddUnit(VD6_AnimUnitCreateControl());
 
   /* Main Program Loop */
   while (TRUE)

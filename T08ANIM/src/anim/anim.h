@@ -8,7 +8,7 @@ typedef struct tagvd6UNIT vd6UNIT;
   VOID (*Init)( vd6UNIT *Uni, vd6ANIM *Ani );      \
   VOID (*Close)( vd6UNIT *Uni, vd6ANIM *Ani );     \
   VOID (*Response)( vd6UNIT *Uni, vd6ANIM *Ani );  \
-  VOID (*Render)( vd6UNIT *Uni, vd6ANIM *Ani )     
+  VOID (*Render)( vd6UNIT *Uni, vd6ANIM *Ani )
 
 #define VD6_MAX_UNITS 3000
 
@@ -38,6 +38,12 @@ typedef struct tagvd6ANIM
 
   BOOL
     IsPause;                     /* Pause flag */
+
+  BYTE Keys[256];
+  BYTE KeysClick[256];
+  BYTE KeysOld[256];
+
+  INT Mx, My, Mz, Mdx, Mdy, Mdz;
 };
 
 extern vd6ANIM VD6_Anim;
