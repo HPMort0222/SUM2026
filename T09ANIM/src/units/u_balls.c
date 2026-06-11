@@ -20,7 +20,7 @@ typedef struct tagvd6UNIT_BBALL
  */
 static VOID VD6_UnitInit( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
 {
-  VD6_RndPrimCreateSphere(&Uni->Ball, 1, 8, 8);
+  VD6_RndPrimCreateSphere(&Uni->Ball, 1, 18, 8);
   Uni->Pos = VecSet(Rnd1() * 8, 1, Rnd1() * 8);
  
   Uni->Shift = 1 + Rnd0() * 47;
