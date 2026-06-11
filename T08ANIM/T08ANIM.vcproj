@@ -198,11 +198,15 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\anim\anit.h"
+					RelativePath=".\src\anim\anim.h"
 					>
 				</File>
 				<File
 					RelativePath=".\src\anim\timer.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\anim\timer.h"
 					>
 				</File>
 				<File

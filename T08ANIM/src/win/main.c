@@ -2,7 +2,7 @@
 
 #include <time.h>
 
-#include "anim/rnd/rnd.h"
+#include "units/units.h"
 
 #define WND_CLASS_NAME "My super-puper proj"
 
@@ -43,6 +43,8 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
   hWnd = CreateWindow(WND_CLASS_NAME, "Press me..", WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
     1500, 100, 500, 300, NULL, NULL, hInstance, NULL);
 
+  VD6_AnimAddUnit(VD6_AnimUnitCreateBBalls());
+
   /* Main Program Loop */
   while (TRUE)
     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -61,32 +63,27 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
                                WPARAM wParam, LPARAM lParam )
 {
   HDC hDC;
-  PAINTSTRUCT ps;
-  static vd6PRIM Pr1, Pr2;
+  PAINTSTRUCT pt;
 
   switch (Msg)
   {
   case WM_CREATE:
-    VD6_RndInit(hWnd);
-
     SetTimer(hWnd, 50, 1, NULL);
-    VD6_RndPrimLoad(&Pr2, "./bin/model/cow.obj");
-    VD6_RndPrimCreateCylinder(&Pr1, 3, 30, 4);
+    VD6_AnimInit(hWnd);
     return 0;
 
   case WM_SIZE:
-    VD6_RndResize(LOWORD(lParam), HIWORD(lParam));
+    VD6_AnimResize(LOWORD(lParam), HIWORD(lParam));
     SendMessage(hWnd, WM_TIMER, 47, 0);
     return 0;
 
   case WM_TIMER:
-    VD6_RndStart();
-    VD6_RndPrimDraw(&Pr1, MatrMulMatr(MatrRotateY(60 * clock() / 1000), MatrTranslate(VecSet(-10, -20, 0))));
-    VD6_RndPrimDraw(&Pr2, MatrMulMatr(MatrRotateZ(60 * clock() / 1000), MatrTranslate(VecSet(-10, -20, -20))));
-    VD6_RndEnd();
+    VD6_AnimRender();
 
     hDC = GetDC(hWnd);
-    VD6_RndCopyFrame(hDC);
+    SelectObject(hDC, GetStockObject(BLACK_PEN));
+
+    VD6_AnimCopyFrame(hDC);
     ReleaseDC(hWnd, hDC);
     return 0;
 
@@ -94,14 +91,13 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
     return 1;
 
   case WM_PAINT:
-    hDC = BeginPaint(hWnd, &ps);
-    VD6_RndCopyFrame(hDC);
-    EndPaint(hWnd, &ps);
+    hDC = BeginPaint(hWnd, &pt);
+    VD6_AnimCopyFrame(hDC);
+    EndPaint(hWnd, &pt);
     return 0;
 
   case WM_DESTROY:
-    VD6_RndPrimFree(&Pr1);
-    VD6_RndClose();
+    VD6_AnimClose();
     PostQuitMessage(0);
     KillTimer(hWnd, 30);
   }

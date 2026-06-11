@@ -141,6 +141,16 @@ __inline VEC VecDivNum( VEC V1, DBL N )
   return VecSet(V1.X / N, V1.Y / N, V1.Z / N);
 } /* End of 'VecDivNum' function */
 
+__inline VEC VecAddNum( VEC V1, DBL N )
+{
+  return VecSet(V1.X + N, V1.Y + N, V1.Z + N);
+} /* End of 'VecAddNum' function */
+
+__inline VEC VecSubNum( VEC V1, DBL N )
+{
+  return VecSet(V1.X - N, V1.Y - N, V1.Z - N);
+} /* End of 'VecAddNum' function */
+
 __inline VEC VecNeg( VEC V )
 {
   return VecSet(-V.X, -V.Y, -V.Z);

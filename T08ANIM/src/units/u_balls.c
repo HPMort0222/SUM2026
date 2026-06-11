@@ -1,4 +1,74 @@
+#include "units.h"
+
+typedef struct tagvd6UNIT_BBALL vd6UNIT_BBALL;
+
+typedef struct tagvd6UNIT_BBALL
+{
+  UNIT_BASE_FIELDS;
+  VEC Pos;
+  vd6PRIM Ball;
+};
+
+/* Unit initialization function.
+ * ARGUMENTS:
+ *   - self-pointer to unit object:
+ *       vd6UNIT *Uni;
+ *   - animation context:
+ *       vd6ANIM *Ani;
+ * RETURNS: None.
+ */
+static VOID VD6_UnitInit( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
+{
+  VD6_RndPrimCreateSphere(&Uni->Ball, 6, 20, 20);
+  Uni->Pos = VecSet(10, -10, -10);
+} /* End of 'VD6_UnitInit' function */
+
+/* Unit inter frame events handle function.
+ * ARGUMENTS:
+ *   - self-pointer to unit object:
+ *       vd6UNIT *Uni;
+ *   - animation context:
+ *       vd6ANIM *Ani;
+ * RETURNS: None.
+ */
+static VOID VD6_UnitResponse( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
+{
+  Uni->Pos = VecSubNum(Uni->Pos, Ani->DeltaTime * 2.4);
+} /* End of 'VD6_UnitClose' function */
+
+/* Unit render function.
+ * ARGUMENTS:
+ *   - self-pointer to unit object:
+ *       vd6UNIT *Uni;
+ *   - animation context:
+ *       vd6ANIM *Ani;
+ * RETURNS: None.
+ */
+static VOID VD6_UnitRender( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
+{
+  VD6_RndPrimDraw(&Uni->Ball, MatrMulMatr3(MatrRotateZ(60 * clock() / 1000), MatrRotateY(60 * clock() / 1000), MatrTranslate(VecSet(-10, -20, -20))));
+} /* End of 'VD6_UnitClose' function */
 
 
+/* Unit creation function.
+ * ARGUMENTS:
+ *   - unit structure size in bytes:
+ *       INT Size;
+ * RETURNS:
+ *   (vd6UNIT *) pointer to created unit.
+ */
+vd6UNIT * VD6_AnimUnitCreateBBalls( VOID )
+{
+  vd6UNIT_BBALL *Uni;
 
+  /* Memory allocation */
+  if ((Uni = (vd6UNIT_BBALL *)VD6_AnimUnitCreate(sizeof(vd6UNIT_BBALL))) == NULL)
+    return NULL;
 
+  /* Setup unit methods */
+  Uni->Init = (VOID *)VD6_UnitInit;
+  Uni->Response = (VOID *)VD6_UnitResponse;
+  Uni->Render = (VOID *)VD6_UnitRender;
+
+  return (vd6UNIT *)Uni;
+} /* End of 'VD6_AnimUnitCreate' function */
