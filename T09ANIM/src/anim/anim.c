@@ -10,11 +10,12 @@ VOID VD6_AnimInit( HWND hWnd )
 
   VD6_Anim.hWnd = hWnd;
   VD6_RndInit(hWnd);
-  VD6_Anim.hDC = VD6_hRndDCFrame;
-  VD6_Anim.H = VD6_RndFrameH;
-  VD6_Anim.W = VD6_RndFrameW;
+  VD6_Anim.hDC = VD6_hRndDC;
+  VD6_Anim.H = VD6_RndH;
+  VD6_Anim.W = VD6_RndW;
 
   VD6_TimerInit();
+  VD6_AnimInputInit();
 }
 
 VOID VD6_AnimClose( VOID )
@@ -39,9 +40,9 @@ VOID VD6_AnimResize( INT W, INT H )
   VD6_AnimRender();
 }
 
-VOID VD6_AnimCopyFrame( HDC hDC )
+VOID VD6_AnimCopyFrame( VOID )
 {
-  VD6_RndCopyFrame(hDC);
+  VD6_RndCopyFrame();
 }
 
 VOID VD6_AnimRender( VOID )
@@ -49,9 +50,12 @@ VOID VD6_AnimRender( VOID )
   INT i;
 
   VD6_TimerResponse();
+  VD6_AnimInputResponse();
+
   for (i = 0; i < VD6_Anim.NumOfUnits; i++)
     VD6_Anim.Units[i]->Response(VD6_Anim.Units[i], &VD6_Anim);
 
+  srand(30);
   VD6_RndStart();
   for (i = 0; i < VD6_Anim.NumOfUnits; i++)
     VD6_Anim.Units[i]->Render(VD6_Anim.Units[i], &VD6_Anim);

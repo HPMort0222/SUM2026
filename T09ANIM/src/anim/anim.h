@@ -54,7 +54,7 @@ VOID VD6_AnimClose( VOID );
 
 VOID VD6_AnimResize( INT W, INT H );
 
-VOID VD6_AnimCopyFrame( HDC hDC );
+VOID VD6_AnimCopyFrame( VOID );
 
 VOID VD6_AnimRender( VOID );
 

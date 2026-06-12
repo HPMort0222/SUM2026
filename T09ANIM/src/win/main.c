@@ -1,5 +1,4 @@
 /* Donik Vasilisa, 10-6, 06.06.2026 */
-
 #include "units/units.h"
 
 #define WND_CLASS_NAME "My super-puper proj"
@@ -42,8 +41,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
   hWnd = CreateWindow(WND_CLASS_NAME, "Press me..", WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
     1500, 100, 500, 300, NULL, NULL, hInstance, NULL);
 
-  srand(30);
-  for (i = 0; i < 10; i++)
+  for (i = 0; i < 100; i++)
     VD6_AnimAddUnit(VD6_AnimUnitCreateBBalls());
   VD6_AnimAddUnit(VD6_AnimUnitCreateCow());
   VD6_AnimAddUnit(VD6_AnimUnitCreateControl());
@@ -82,12 +80,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 
   case WM_TIMER:
     VD6_AnimRender();
-
-    hDC = GetDC(hWnd);
-    SelectObject(hDC, GetStockObject(BLACK_PEN));
-
-    VD6_AnimCopyFrame(hDC);
-    ReleaseDC(hWnd, hDC);
+    VD6_AnimCopyFrame();
     return 0;
 
   case WM_ERASEBKGND:
@@ -95,7 +88,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
 
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &pt);
-    VD6_AnimCopyFrame(hDC);
+    VD6_AnimCopyFrame();
     EndPaint(hWnd, &pt);
     return 0;
 

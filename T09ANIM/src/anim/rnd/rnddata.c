@@ -2,9 +2,9 @@
 #include "rnd.h"
 
 HWND VD6_hRndWnd;                 /* Work window handle */
-HDC VD6_hRndDCFrame;              /* Work window memory device context  */
-HBITMAP VD6_hRndBmFrame;          /* Work window background bitmap handle */
-INT VD6_RndFrameW, VD6_RndFrameH; /* Work window size */
+HDC VD6_hRndDC;              /* Work window memory device context  */
+INT VD6_RndW, VD6_RndH; /* Work window size */
+HGLRC VD6_hRndGLRC;
 
 DBL
    VD6_RndProjSize = 0.1,         /* Project plane fit square */
@@ -15,3 +15,4 @@ MATR
     VD6_RndMatrView,              /* View coordinate system matrix */
     VD6_RndMatrProj,              /* Projection coordinate system matrix */
     VD6_RndMatrVP;                /* Stored (View * Proj) matrix */
+

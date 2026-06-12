@@ -1,8 +1,6 @@
 #ifndef __def_h_
 #define __def_h_
 
-#pragma warning(disable: 4244)
-
 /* Debug memory allocation support */
 #ifndef NDEBUG
 #  define _CRTDBG_MAP_ALLOC

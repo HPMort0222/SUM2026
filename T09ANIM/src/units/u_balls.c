@@ -20,11 +20,11 @@ typedef struct tagvd6UNIT_BBALL
  */
 static VOID VD6_UnitInit( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
 {
-  VD6_RndPrimCreateSphere(&Uni->Ball, 1, 18, 8);
+  VD6_RndPrimCreateSphere(&Uni->Ball, 0.5, 20, 20);
   Uni->Pos = VecSet(Rnd1() * 8, 1, Rnd1() * 8);
  
   Uni->Shift = 1 + Rnd0() * 47;
-  Uni->Scale = 3 + Rnd1() * 0.5;
+  Uni->Scale = 3 + Rnd1() * 5;
 } /* End of 'VD6_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -49,7 +49,7 @@ static VOID VD6_UnitResponse( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
  */
 static VOID VD6_UnitRender( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
 {
-  VD6_RndPrimDraw(&Uni->Ball, MatrMulMatr(MatrRotateY(60 * clock() / 1000), MatrTranslate(Uni->Pos)));
+  VD6_RndPrimDraw(&Uni->Ball, MatrTranslate(VecAddVec(Uni->Pos, VecSet(0, fabs(sin(5 * Ani->Time) * Uni->Scale), 0))));
 } /* End of 'VD6_UnitClose' function */
 
 static VOID VD6_UnitClose( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )

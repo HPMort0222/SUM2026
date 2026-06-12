@@ -37,45 +37,71 @@ typedef double DBL;
 typedef float FLT;
 
 /* Space vector/point representation type */
+typedef struct tagVEC2
+{
+  FLT X, Y; /* Vector coordinates */
+} VEC2;
+
+/* Space vector/point representation type */
 typedef struct tagVEC
 {
-  DBL X, Y, Z; /* Vector coordinates */
+  FLT X, Y, Z; /* Vector coordinates */
 } VEC;
+
+/* Space vector/point representation type */
+typedef struct tagVEC4
+{
+  FLT X, Y, Z, W; /* Vector coordinates */
+} VEC4;
 
 /* Transformation matrix representation type */
 typedef struct tagMATR
 {
-  DBL A[4][4]; /* Matrix elements */
+  FLT A[4][4]; /* Matrix elements */
 } MATR;
 
   /* Random number obtain in range [0.0 .. 1.0] function.
  * ARGUMENTS: None.
  * RETURNS:
- *   (DBL) result random number.
+ *   (FLT) result random number.
  */
-__inline DBL Rnd0( VOID )
+__inline FLT Rnd0( VOID )
 {
-  return (DBL)rand() / RAND_MAX;
+  return (FLT)rand() / RAND_MAX;
 } /* End of 'Rnd0' function */
  
 /* Random number obtain in range [-1.0 .. 1.0] function.
  * ARGUMENTS: None.
  * RETURNS:
- *   (DBL) result random number.
+ *   (FLT) result random number.
  */
-__inline DBL Rnd1( VOID )
+__inline FLT Rnd1( VOID )
 {
-  return 2.0 * rand() / RAND_MAX - 1;
+  return 2 * (FLT)rand() / RAND_MAX - 1;
 } /* End of 'Rnd1' function */
 
-__inline VEC VecSet( DBL X, DBL Y, DBL Z )
+__inline VEC2 Vec2Set( FLT X, FLT Y )
+{
+  VEC2 v = {X, Y};
+
+  return v;
+} /* End of 'VecSet' function */
+
+__inline VEC VecSet( FLT X, FLT Y, FLT Z )
 {
   VEC v = {X, Y, Z};
 
   return v;
 } /* End of 'VecSet' function */
 
-__inline VEC VecSetAll( DBL A )
+__inline VEC4 Vec4Set( FLT X, FLT Y, FLT Z, FLT W )
+{
+  VEC4 v = {X, Y, Z, W};
+
+  return v;
+} /* End of 'VecSet' function */
+
+__inline VEC VecSetAll( FLT A )
 {
   VEC r = {A, A, A};
 
@@ -89,10 +115,10 @@ __inline MATR MatrIdentity( VOID )
   return I;
 } /* End of 'VecMulNum' function */
 
-__inline MATR MatrSet( DBL A00, DBL A01, DBL A02, DBL A03,
-                       DBL A10, DBL A11, DBL A12, DBL A13,
-                       DBL A20, DBL A21, DBL A22, DBL A23,
-                       DBL A30, DBL A31, DBL A32, DBL A33 )
+__inline MATR MatrSet( FLT A00, FLT A01, FLT A02, FLT A03,
+                       FLT A10, FLT A11, FLT A12, FLT A13,
+                       FLT A20, FLT A21, FLT A22, FLT A23,
+                       FLT A30, FLT A31, FLT A32, FLT A33 )
 {
   MATR m =
   {
@@ -138,7 +164,7 @@ __inline VEC VecAddVec( VEC V1, VEC V2 )
  */
 __inline VEC VecMulMatr( VEC V, MATR M )
 {
-  DBL w = V.X * M.A[0][3] + V.Y * M.A[1][3] + V.Z * M.A[2][3] + M.A[3][3];
+  FLT w = V.X * M.A[0][3] + V.Y * M.A[1][3] + V.Z * M.A[2][3] + M.A[3][3];
 
   return VecSet((V.X * M.A[0][0] + V.Y * M.A[1][0] + V.Z * M.A[2][0] + M.A[3][0]) / w,
                 (V.X * M.A[0][1] + V.Y * M.A[1][1] + V.Z * M.A[2][1] + M.A[3][1]) / w,
@@ -150,22 +176,32 @@ __inline VEC VecSubVec( VEC V1, VEC V2 )
   return VecSet(V1.X - V2.X, V1.Y - V2.Y, V1.Z - V2.Z);
 } /* End of 'VecSubVec' function */
 
-__inline VEC VecMulNum( VEC V1, DBL N )
+__inline VEC2 Vec2MulNum( VEC2 V1, FLT N )
+{
+  return Vec2Set(V1.X * N, V1.Y * N);
+} /* End of 'Vec2MulNum' function */
+
+__inline VEC VecMulNum( VEC V1, FLT N )
 {
   return VecSet(V1.X * N, V1.Y * N, V1.Z * N);
 } /* End of 'VecMulNum' function */
 
-__inline VEC VecDivNum( VEC V1, DBL N )
+__inline VEC4 Vec4MulNum( VEC4 V1, FLT N )
+{
+  return Vec4Set(V1.X * N, V1.Y * N, V1.Z * N, V1.W * N);
+} /* End of 'Vec4MulNum' function */
+
+__inline VEC VecDivNum( VEC V1, FLT N )
 {
   return VecSet(V1.X / N, V1.Y / N, V1.Z / N);
 } /* End of 'VecDivNum' function */
 
-__inline VEC VecAddNum( VEC V1, DBL N )
+__inline VEC VecAddNum( VEC V1, FLT N )
 {
   return VecSet(V1.X + N, V1.Y + N, V1.Z + N);
 } /* End of 'VecAddNum' function */
 
-__inline VEC VecSubNum( VEC V1, DBL N )
+__inline VEC VecSubNum( VEC V1, FLT N )
 {
   return VecSet(V1.X - N, V1.Y - N, V1.Z - N);
 } /* End of 'VecAddNum' function */
@@ -176,7 +212,7 @@ __inline VEC VecNeg( VEC V )
 } /* End of 'VecNeg' function */
 
 /* скалярное произведение векторов */
-__inline DBL VecDotVec( VEC V1, VEC V2 )
+__inline FLT VecDotVec( VEC V1, VEC V2 )
 {
   return V1.X * V2.X + V1.Y * V2.Y + V1.Z * V2.Z;
 } /* End of 'VecDotVec' function */
@@ -188,23 +224,23 @@ __inline VEC VecCrossVec( VEC V1, VEC V2 )
                 V1.X * V2.Y - V1.Y * V2.X);
 } /* End of 'VecCrossVec' function */
 
-__inline DBL VecLen( VEC V )
+__inline FLT VecLen( VEC V )
 {
-  DBL len = VecDotVec(V, V);
+  FLT len = VecDotVec(V, V);
 
   if (len == 1 || len == 0)
     return len;
   return sqrt(len);
 } /* End of 'VecLen' function */
 
-__inline DBL VecLen2( VEC V )
+__inline FLT VecLen2( VEC V )
 {
   return VecLen(V) * VecLen(V);
 } /* End of 'VecLen2' function */
 
 __inline VEC VecNormalize( VEC V )
 {
-  DBL len = VecDotVec(V, V);
+  FLT len = VecDotVec(V, V);
 
   if (len == 1 || len == 0)
     return V;
@@ -247,15 +283,15 @@ __inline MATR MatrMulMatr( MATR M1, MATR M2 )
   return r;
 } /* End of 'VecMulNum' function */
 
-__inline DBL MatrDeterm3x3( DBL A11, DBL A12, DBL A13,
-                            DBL A21, DBL A22, DBL A23,
-                            DBL A31, DBL A32, DBL A33 )
+__inline FLT MatrDeterm3x3( FLT A11, FLT A12, FLT A13,
+                            FLT A21, FLT A22, FLT A23,
+                            FLT A31, FLT A32, FLT A33 )
 {
   return A11 * A22 * A33 + A12 * A23 * A31 + A13 * A21 * A32 -
          A11 * A23 * A32 - A12 * A21 * A33 - A13 * A22 * A31;
 } /* End of 'MatrDeterm3x3' function */
 
-__inline DBL MatrDeterm( MATR M )
+__inline FLT MatrDeterm( MATR M )
 {
   return
     M.A[0][0] * MatrDeterm3x3(M.A[1][1], M.A[1][2], M.A[1][3],
@@ -274,7 +310,7 @@ __inline DBL MatrDeterm( MATR M )
 
 __inline MATR MatrInverse( MATR M )
 {
-  DBL det = MatrDeterm(M);
+  FLT det = MatrDeterm(M);
   MATR r;
 
   if (det == 0)
@@ -361,9 +397,9 @@ __inline MATR MatrScale( VEC S )
                  0,   0,   0,   1);
 } /* End of 'MatrScale' function */
 
-__inline MATR MatrRotateX( DBL AngleInDegree )
+__inline MATR MatrRotateX( FLT AngleInDegree )
 {
-  DBL co, si;
+  FLT co, si;
 
   AngleInDegree = D2R(AngleInDegree);
   co = cos(AngleInDegree), si = sin(AngleInDegree);
@@ -374,9 +410,9 @@ __inline MATR MatrRotateX( DBL AngleInDegree )
                  0, 0,   0,  1);
 } /* End of 'VecMulNum' function */
 
-__inline MATR MatrRotateY( DBL AngleInDegree )
+__inline MATR MatrRotateY( FLT AngleInDegree )
 {
-  DBL co, si;
+  FLT co, si;
 
   AngleInDegree = D2R(AngleInDegree);
   co = cos(AngleInDegree), si = sin(AngleInDegree);
@@ -387,25 +423,27 @@ __inline MATR MatrRotateY( DBL AngleInDegree )
                  0,    0,  0,   1);
 } /* End of 'VecMulNum' function */
 
-__inline MATR MatrRotateZ( DBL AngleInDegree )
+__inline MATR MatrRotateZ( FLT AngleInDegree )
 {
-  DBL co, si;
+  FLT co, si;
 
   AngleInDegree = D2R(AngleInDegree);
   co = cos(AngleInDegree), si = sin(AngleInDegree);
+
   return MatrSet(co,   si, 0, 0,
                  -si,  co, 0, 0,
                  0,     0, 1, 0,
                  0,     0, 0, 1);
 } /* End of 'VecMulNum' function */
 
-__inline MATR MatrRotate( DBL AngleInDegree, VEC V )
+__inline MATR MatrRotate( FLT AngleInDegree, VEC V )
 {
   VEC R = VecNormalize(V);
+  FLT co = cos(AngleInDegree), si = sin(AngleInDegree);
 
-  return MatrTranspose(MatrSet(cos(AngleInDegree) + R.X * R.X * (1 - cos(AngleInDegree)), R.X * R.Y * (1 - cos(AngleInDegree)) + R.Z * sin(AngleInDegree), R.X * R.Z * (1  - cos(AngleInDegree)) - R.Y * sin(AngleInDegree), 1,
-                       R.Y * R.X * (1 - cos(AngleInDegree)) - R.Z * sin(AngleInDegree), cos(AngleInDegree) + R.Y * R.Y * (1 - cos(AngleInDegree)), R.Y * R.Z * (1 - cos(AngleInDegree)) + R.X * sin(AngleInDegree), 1,
-                       R.Z * R.X * (1 - cos(AngleInDegree)) + R.Y * cos(AngleInDegree), R.Z * R.Y * (1 - cos(AngleInDegree)) - R.X * cos(AngleInDegree), cos(AngleInDegree) + R.Z * R.Z * (1 - cos(AngleInDegree)), 1,
+  return MatrTranspose(MatrSet(co + R.X * R.X * (1 - co), R.X * R.Y * (1 - co) + R.Z * si, R.X * R.Z * (1  - co), 1,
+                       R.Y * R.X * (1 - co) - R.Z * si, co + R.Y * R.Y * (1 - co), R.Y * R.Z * (1 - co) + R.X * si, 1,
+                       R.Z * R.X * (1 - co) + R.Y * co, R.Z * R.Y * (1 - co) - R.X * co, co + R.Z * R.Z * (1 - co), 1,
                        1, 1, 1, 1));
 } /* End of 'VecMulNum' function */
 
@@ -438,11 +476,11 @@ __inline MATR MatrView( VEC Loc, VEC At, VEC Up1 )
 /* Perspective (frustum) projection matrix setup function.
  * ARGUMENTS:
  *   - frustum side facets coordinates:
- *       DBL Left, Right, Bottom, Top, Near, Far;
+ *       FLT Left, Right, Bottom, Top, Near, Far;
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrFrustum( DBL Left, DBL Right, DBL Bottom, DBL Top, DBL Near, DBL Far )
+__inline MATR MatrFrustum( FLT Left, FLT Right, FLT Bottom, FLT Top, FLT Near, FLT Far )
 {
   MATR m =
   {

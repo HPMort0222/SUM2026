@@ -30,38 +30,25 @@ BOOL VD6_RndPrimCreate( vd6PRIM *Pr, INT NoofV, INT NoofI )
 
 VOID VD6_RndPrimDraw( vd6PRIM *Pr, MATR World )
 {
-  INT i, t = clock() / CLOCKS_PER_SEC;
+  INT i;
   MATR wvp = MatrMulMatr3(Pr->Trans, World, VD6_RndMatrVP);
-  POINT *pnts;
+ 
+  glLoadMatrixf(wvp.A[0]);
 
-  if ((pnts = malloc(sizeof(POINT) * Pr->NumOfV)) == NULL)
-    return;
-
-  /* Build vertex projects */
-  for (i = 0; i < Pr->NumOfV; i++)
+  /* Draw triangles by edges */
+  glBegin(GL_TRIANGLES);
+  for (i = 0; i < Pr->NumOfI; i++)
   {
-    VEC p = VecMulMatr(Pr->V[i].P, wvp);
-
-    pnts[i].x = (INT)((p.X + 1) * VD6_RndFrameW / 2);
-    pnts[i].y = (INT)((-p.Y + 1) * VD6_RndFrameH / 2);
+    glColor4fv(&Pr->V[Pr->I[i]].C.X);
+    glVertex3fv(&Pr->V[Pr->I[i]].P.X);
   }
-
-  SelectObject(VD6_hRndDCFrame, GetStockObject(BLACK_PEN));
-  for (i = 0; i < Pr->NumOfI; i += 3)
-  {
-    MoveToEx(VD6_hRndDCFrame, pnts[Pr->I[i + 0]].x, pnts[Pr->I[i + 0]].y, NULL);
-    LineTo(VD6_hRndDCFrame, pnts[Pr->I[i + 1]].x,   pnts[Pr->I[i + 1]].y);
-    LineTo(VD6_hRndDCFrame, pnts[Pr->I[i + 2]].x,   pnts[Pr->I[i + 2]].y);
-    LineTo(VD6_hRndDCFrame, pnts[Pr->I[i + 0]].x,   pnts[Pr->I[i + 0]].y);
-  }
-
-  free(pnts);
+  glEnd();
 }
 
 /* Create sphere primitive function.
  * ARGUMENTS:
  *   - pointer to primitive to create:
- *       vg4PRIM *Pr;
+ *       vd6PRIM *Pr;
  *   - sphere radius:
  *       DBL R;
  *   - split parts counts:
@@ -73,6 +60,8 @@ BOOL VD6_RndPrimCreateSphere( vd6PRIM *Pr, DBL R, INT W, INT H )
 {
   INT i, j, k;
   DBL theta, phi;
+  VEC L = VecNormalize(VecSet(1, 1, 1));
+  VEC4 Color = Vec4Set(Rnd1(), Rnd1(), Rnd1(), Rnd1());
 
   if (!VD6_RndPrimCreate(Pr, W * H, (H - 1) * (W - 1) * 2 * 3))
     return FALSE;
@@ -80,10 +69,23 @@ BOOL VD6_RndPrimCreateSphere( vd6PRIM *Pr, DBL R, INT W, INT H )
   /* Fill vertex array */
   for (k = 0, i = 0, theta = 0; i < H; i++, theta += PI / (H - 1))
     for (j = 0, phi = 0; j < W; j++, phi += 2 * PI / (W - 1))
+    {
+      DBL nl;
+
+      Pr->V[k].N = VecSet(sin(theta) * sin(phi),
+                          cos(theta),
+                          sin(theta) * cos(phi));
+
+      nl = VecDotVec(L, Pr->V[k].N);
+      if (nl < 0.2)
+        nl = 0.2;
+
+      Pr->V[k].C = Vec4MulNum(Color, nl);
+
       Pr->V[k++].P = VecSet(R * sin(theta) * sin(phi),
                             R * cos(theta),
                             R * sin(theta) * cos(phi));
-
+    }
   /* Fill vertex array */
   for (k = 0, i = 0; i < H - 1; i++)
     for (j = 0; j < W - 1; j++)
@@ -103,7 +105,7 @@ BOOL VD6_RndPrimCreateSphere( vd6PRIM *Pr, DBL R, INT W, INT H )
 /* Create sphere primitive function.
  * ARGUMENTS:
  *   - pointer to primitive to create:
- *       vg4PRIM *Pr;
+ *       vd6PRIM *Pr;
  *   - sphere radius:
  *       DBL R;
  *   - split parts counts:
@@ -154,7 +156,7 @@ BOOL VD6_RndPrimCreateCylinder( vd6PRIM *Pr, DBL R, INT W, INT H )
 /* Primitive free function.
  * ARGUMENTS:
  *   - primitive to be load:
- *       vg4PRIM *Pr;
+ *       vd6PRIM *Pr;
  *   - primitve filename (.OBJ):
  *       CHAR *FileName;
  * RETURNS:

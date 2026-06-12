@@ -7,12 +7,15 @@
 #ifndef __rnd_h_
 #define __rnd_h_
 
+#define GLEW_STATIC
+#include "glew.h"
+
 #include "def.h"
 
 extern HWND VD6_hRndWnd;                 /* Work window handle */
-extern HDC VD6_hRndDCFrame;              /* Work window memory device context  */
-extern HBITMAP VD6_hRndBmFrame;          /* Work window background bitmap handle */
-extern INT VD6_RndFrameW, VD6_RndFrameH; /* Work window size */
+extern HDC VD6_hRndDC;                   /* Work window memory device context  */
+extern INT VD6_RndW, VD6_RndH; /* Work window size */
+extern HGLRC VD6_hRndGLRC;
 
 extern DBL
           VD6_RndProjSize,         /* Project plane fit square */
@@ -31,7 +34,10 @@ extern MATR
 /* Vertex representation type */
 typedef struct tagvd6VERTEX
 {
+  VEC2 T;
+  VEC N;
   VEC P;  /* Vertex position */
+  VEC4 C;
 } vd6VERTEX;
 
 /* Primitive representation type */
@@ -53,7 +59,7 @@ VOID VD6_RndClose( VOID );
 
 VOID VD6_RndResize( INT W, INT H );
 
-VOID VD6_RndCopyFrame( HDC hDC );
+VOID VD6_RndCopyFrame( VOID );
 
 VOID VD6_RndStart( VOID );
 

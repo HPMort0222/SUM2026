@@ -1,14 +1,14 @@
-#include <string.h>
+#include "stdio.h"
+
 #include "units.h"
 
-typedef struct tagvd6UNIT_CNTL vd6UNIT_CNTL;
+typedef struct tagvd6UNIT_CONTROL vd6UNIT_CONTROL;
 
-typedef struct tagvd6UNIT_CNTL
+typedef struct tagvd6UNIT_CONTROL
 {
   UNIT_BASE_FIELDS;
-  VEC CamLoc, CamDir;
+  VEC CamLoc, CamAt;
   DBL Speed;
-  VEC Pos;
 };
 
 /* Unit initialization function.
@@ -19,12 +19,12 @@ typedef struct tagvd6UNIT_CNTL
  *       vd6ANIM *Ani;
  * RETURNS: None.
  */
-static VOID VD6_UnitInit( vd6UNIT_CNTL *Uni, vd6ANIM *Ani )
+static VOID VD6_UnitInit( vd6UNIT_CONTROL *Uni, vd6ANIM *Ani )
 {
-  Uni->CamLoc = VecSet(1, 0, 0);
-  Uni->CamDir = VecSet(1, 0, 0);
+  Uni->CamLoc = VecSet(8, 8, 8);
+  Uni->CamAt = VecSet(0, 0, 0);
 
-  Uni->Speed = 3;
+  Uni->Speed = 10;
 } /* End of 'VD6_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -35,29 +35,27 @@ static VOID VD6_UnitInit( vd6UNIT_CNTL *Uni, vd6ANIM *Ani )
  *       vd6ANIM *Ani;
  * RETURNS: None.
  */
-static VOID VD6_UnitResponse( vd6UNIT_CNTL *Uni, vd6ANIM *Ani )
+static VOID VD6_UnitResponse( vd6UNIT_CONTROL *Uni, vd6ANIM *Ani )
 {
-  INT i;
-
-  GetKeyboardState(Ani->Keys);
-  for (i = 0; i < 256; i++)
-  {
-    Ani->Keys[i] >>= 7;
-    Ani->KeysClick[i] = Ani->Keys[i] && !Ani->KeysOld[i];
-  }
- 
-  memcpy(Ani->KeysOld, Ani->Keys, 256);
+  VEC d;
 
   /*
-  if (Ani->Keys[VK_CONTROL] && Ani->KeysClick['F'])
-    VD6_AnimFlipFullScreen();
+  if (Ani->Keys[VK_CONTROL] && Ani->Keys['F'])
+    VG4_AnimFlipFullScreen();
   */
 
-  if (Ani->KeysClick['p'])
+  if (Ani->KeysClick['P'])
     Ani->IsPause = !Ani->IsPause;
 
-    Uni->CamLoc = VecAddVec(Uni->CamLoc, VecMulNum(Uni->CamDir,
-                  Ani->DeltaTime * Uni->Speed * (Ani->Keys[VK_UP] - Ani->Keys[VK_DOWN])));
+  d = VecNormalize(VecSubVec(Uni->CamAt, Uni->CamLoc));
+
+  Uni->CamLoc =
+    VecAddVec(Uni->CamLoc,
+      VecMulNum(d, Ani->GlobalDeltaTime * (Uni->Speed + 3 * Ani->Keys[VK_SHIFT]) *
+      (Ani->Keys[VK_UP] - Ani->Keys[VK_DOWN] + Ani->Mdz)));
+
+  VD6_RndCamSet(Uni->CamLoc, Uni->CamAt, VecSet(0, 1, 0));
+
 } /* End of 'VD6_UnitClose' function */
 
 /* Unit render function.
@@ -68,10 +66,22 @@ static VOID VD6_UnitResponse( vd6UNIT_CNTL *Uni, vd6ANIM *Ani )
  *       vd6ANIM *Ani;
  * RETURNS: None.
  */
-static VOID VD6_UnitRender( vd6UNIT_CNTL *Uni, vd6ANIM *Ani )
+static VOID VD6_UnitRender( vd6UNIT_CONTROL *Uni, vd6ANIM *Ani )
 {
+  CHAR Buf[102];
+  static DBL OldTime;
+
+  if (Ani->GlobalTime - OldTime > 2)
+  {
+    sprintf(Buf, "FPS: %.3f", Ani->FPS);
+    SetWindowText(Ani->hWnd, Buf);
+    OldTime = Ani->GlobalTime;
+  }
 } /* End of 'VD6_UnitClose' function */
 
+static VOID VD6_UnitClose( vd6UNIT_CONTROL *Uni, vd6ANIM *Ani )
+{
+} /* End of 'VG4_UnitClose' function */
 
 /* Unit creation function.
  * ARGUMENTS:
@@ -82,10 +92,10 @@ static VOID VD6_UnitRender( vd6UNIT_CNTL *Uni, vd6ANIM *Ani )
  */
 vd6UNIT * VD6_AnimUnitCreateControl( VOID )
 {
-  vd6UNIT_CNTL *Uni;
+  vd6UNIT_CONTROL *Uni;
 
   /* Memory allocation */
-  if ((Uni = (vd6UNIT_CNTL *)VD6_AnimUnitCreate(sizeof(vd6UNIT_CNTL))) == NULL)
+  if ((Uni = (vd6UNIT_CONTROL *)VD6_AnimUnitCreate(sizeof(vd6UNIT_CONTROL))) == NULL)
     return NULL;
 
   /* Setup unit methods */
