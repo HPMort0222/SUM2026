@@ -41,7 +41,6 @@ typedef struct tagvd6ANIM
 
   BYTE Keys[256];
   BYTE KeysClick[256];
-  BYTE KeysOld[256];
 
   INT Mx, My, Mz, Mdx, Mdy, Mdz;
 };
@@ -63,3 +62,7 @@ VOID VD6_AnimAddUnit( vd6UNIT *Uni );
 VOID VD6_AnimExit( VOID );
 
 vd6UNIT * VD6_AnimUnitCreate( INT Size );
+
+VOID VD6_AnimInputInit( VOID );
+
+VOID VD6_AnimInputResponse( VOID );

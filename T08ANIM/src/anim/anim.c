@@ -15,6 +15,7 @@ VOID VD6_AnimInit( HWND hWnd )
   VD6_Anim.W = VD6_RndFrameW;
 
   VD6_TimerInit();
+  VD6_AnimInputInit();
 }
 
 VOID VD6_AnimClose( VOID )
@@ -49,6 +50,8 @@ VOID VD6_AnimRender( VOID )
   INT i;
 
   VD6_TimerResponse();
+  VD6_AnimInputResponse();
+
   for (i = 0; i < VD6_Anim.NumOfUnits; i++)
     VD6_Anim.Units[i]->Response(VD6_Anim.Units[i], &VD6_Anim);
 

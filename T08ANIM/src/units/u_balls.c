@@ -49,7 +49,7 @@ static VOID VD6_UnitResponse( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
  */
 static VOID VD6_UnitRender( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )
 {
-  VD6_RndPrimDraw(&Uni->Ball, MatrMulMatr(MatrRotateY(60 * clock() / 1000), MatrTranslate(Uni->Pos)));
+  VD6_RndPrimDraw(&Uni->Ball, MatrTranslate(VecAddVec(Uni->Pos, VecSet(0, fabs(sin(5 * Ani->Time)), 0))));
 } /* End of 'VD6_UnitClose' function */
 
 static VOID VD6_UnitClose( vd6UNIT_BBALL *Uni, vd6ANIM *Ani )

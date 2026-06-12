@@ -47,7 +47,6 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
     VD6_AnimAddUnit(VD6_AnimUnitCreateBBalls());
   VD6_AnimAddUnit(VD6_AnimUnitCreateCow());
   VD6_AnimAddUnit(VD6_AnimUnitCreateControl());
-
   /* Main Program Loop */
   while (TRUE)
     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

@@ -1,4 +1,4 @@
-/* FILE NAME: mth.h
+/* FILE NAME: mth.h                     
  * PURPOSE: 3D math implementation module.
  * PROGRAMMER: VG4
  * DATE: 08.06.2026

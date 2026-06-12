@@ -33,7 +33,6 @@ static VOID VD6_UnitInit( vd6UNIT_COW *Uni, vd6ANIM *Ani )
  */
 static VOID VD6_UnitResponse( vd6UNIT_COW *Uni, vd6ANIM *Ani )
 {
-  Uni->Pos = VecSubNum(Uni->Pos, Ani->DeltaTime * 2.4 + Ani->Time);
 } /* End of 'VD6_UnitClose' function */
 
 /* Unit render function.
@@ -46,7 +45,7 @@ static VOID VD6_UnitResponse( vd6UNIT_COW *Uni, vd6ANIM *Ani )
  */
 static VOID VD6_UnitRender( vd6UNIT_COW *Uni, vd6ANIM *Ani )
 {
-  VD6_RndPrimDraw(&Uni->Cow, MatrMulMatr3(MatrRotateZ(60 * clock() / 1000), MatrRotateY(60 * clock() / 1000), MatrTranslate(VecSet(-10, -20, -20))));
+  VD6_RndPrimDraw(&Uni->Cow, MatrTranslate(VecAddVec(Uni->Pos, VecSet(-10, fabs(sin(5 * Ani->Time)), -10))));
 } /* End of 'VD6_UnitClose' function */
 
 static VOID VD6_UnitClose( vd6UNIT_COW *Uni, vd6ANIM *Ani )
