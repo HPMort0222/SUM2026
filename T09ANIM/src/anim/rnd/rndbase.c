@@ -29,7 +29,16 @@ VOID VD6_RndInit( HWND hWnd )
     WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
                                   /* WGL_CONTEXT_CORE_PROFILE_BIT_ARB, */
     0
-  };
+  }; 
+
+  #ifndef NDEBUG
+  OutputDebugString(glGetString(GL_VERSION));
+  OutputDebugString("\n");
+  OutputDebugString(glGetString(GL_VENDOR));
+  OutputDebugString("\n");
+  OutputDebugString(glGetString(GL_RENDERER));
+  OutputDebugString("\n");
+  #endif /* NDEBUG */
 
   VD6_hRndWnd = hWnd;
 
@@ -75,6 +84,8 @@ VOID VD6_RndInit( HWND hWnd )
   VD6_RndW = 47;
   VD6_RndH = 47;
   VD6_RndCamSet(VecSet(5, 5, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
+
+  VD6_RndResInit();
 }
 
 VOID VD6_RndClose( VOID )

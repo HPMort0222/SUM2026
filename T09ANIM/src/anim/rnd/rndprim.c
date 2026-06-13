@@ -168,8 +168,8 @@ BOOL VD6_RndPrimCreateSphere( vd6PRIM *Pr, DBL R, INT W, INT H )
                           sin(theta) * cos(phi));
 
       nl = VecDotVec(L, V[k].N);
-      if (nl < 0.2)
-        nl = 0.2;
+      if (nl < 0.3)
+        nl = 0.1;
 
       V[k].C = Vec4MulNum(Color, nl);
 
@@ -191,7 +191,7 @@ BOOL VD6_RndPrimCreateSphere( vd6PRIM *Pr, DBL R, INT W, INT H )
       Ind[k++] = (i + 1) * W + j + 1;
     }
 
-  VD6_RndPrimTriMeshAutoNormals(V, W * H, Ind, (H - 1) * (W - 1) * 2);
+  VD6_RndPrimTriMeshAutoNormals(V, W * H, Ind, (H - 1) * (W - 1) * 2 * 3);
   VD6_RndPrimCreate(Pr, VD6_RND_PRIM_TRIMESH, V, W * H, Ind, (H - 1) * (W - 1) * 2 * 3);
   free(V);
   return TRUE;
@@ -328,7 +328,7 @@ VOID VD6_RndPrimTriMeshAutoNormals( vd6VERTEX *V, INT NoofV, INT *Ind, INT NoofI
 {
   INT i;
   VEC L = VecNormalize(VecSet(1, 1, 1));
-  FLT nl;
+  VEC4 Color = Vec4Set(Rnd1(), Rnd1(), Rnd1(), Rnd1());
 
   for (i = 0; i < NoofV; i++)
     V[i].N = VecSet(0, 0, 0);
@@ -348,12 +348,16 @@ VOID VD6_RndPrimTriMeshAutoNormals( vd6VERTEX *V, INT NoofV, INT *Ind, INT NoofI
   }
 
   for (i = 0; i < NoofV; i++)
+  {
+    FLT nl;
+    
     V[i].N = VecNormalize(V[i].N);
 
-  nl = VecDotVec(V[i].N, L);
-  if (nl < 0.1)
-    nl = 0.1;
+    nl = VecDotVec(L, V[i].N);
+    if (nl < 0.2)
+      nl = 0.2;
 
-  V[i].C = Vec4Set(10 * nl, 10 * nl, 10 * nl, 1);
+    V[i].C = Vec4MulNum(Color, nl);
+  }
 }
 

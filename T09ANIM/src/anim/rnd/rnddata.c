@@ -17,3 +17,5 @@ MATR
     VD6_RndMatrVP;                /* Stored (View * Proj) matrix */
 
 VEC VD6_RndMatrRight;
+
+INT VD6_MouseWheel;

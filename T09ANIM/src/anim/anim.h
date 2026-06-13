@@ -38,12 +38,18 @@ typedef struct tagvd6ANIM
 
   BOOL
     IsPause;                     /* Pause flag */
+  BOOL IsActive;
 
   BYTE Keys[256];
   BYTE KeysClick[256];
-  BYTE KeysOld[256];
 
   INT Mx, My, Mz, Mdx, Mdy, Mdz;
+
+  BYTE
+    JBut[32], JButClick[32]; /* Joystick button states */
+  INT JPov;                               /* Joystick point-of-view control [-1,0..7] */
+  DBL
+    JX, JY, JZ, JR;                       /* Joystick axes */
 };
 
 extern vd6ANIM VD6_Anim;

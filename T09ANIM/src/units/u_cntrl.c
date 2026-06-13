@@ -1,4 +1,4 @@
-#include "stdio.h"
+#include <stdio.h>
 
 #include "units.h"
 
@@ -7,8 +7,8 @@ typedef struct tagvd6UNIT_CONTROL vd6UNIT_CONTROL;
 typedef struct tagvd6UNIT_CONTROL
 {
   UNIT_BASE_FIELDS;
-  VEC CamLoc, CamAt;
-  DBL Speed;
+  VEC CamLoc, CamAt, CamDir;
+  DBL Speed, AngleSpeed;
 };
 
 /* Unit initialization function.
@@ -23,8 +23,10 @@ static VOID VD6_UnitInit( vd6UNIT_CONTROL *Uni, vd6ANIM *Ani )
 {
   Uni->CamLoc = VecSet(8, 8, 8);
   Uni->CamAt = VecSet(0, 0, 0);
+  Uni->CamDir = VecSet(2, 2, 2);
 
   Uni->Speed = 10;
+  Uni->AngleSpeed = 0.001;
 } /* End of 'VD6_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -49,16 +51,52 @@ static VOID VD6_UnitResponse( vd6UNIT_CONTROL *Uni, vd6ANIM *Ani )
 
   d = VecNormalize(VecSubVec(Uni->CamAt, Uni->CamLoc));
 
+  Ani->Mdz = VD6_MouseWheel;
+  Ani->Mz += VD6_MouseWheel;
+  VD6_MouseWheel = 0;
+
+  Uni->CamLoc =
+    VecAddVec(Uni->CamLoc,
+      VecMulNum(Uni->CamDir, Ani->GlobalDeltaTime * Uni->Speed * Ani->Mdz));
+
+  Uni->CamLoc =
+  PointTransform(Uni->CamLoc,
+    MatrRotateY(Ani->JX *
+                Uni->AngleSpeed * Ani->Mdx * 0.1));
+  Uni->CamLoc =
+  PointTransform(Uni->CamLoc,
+    MatrRotateX(Ani->JY *
+                Uni->AngleSpeed * Ani->Mdy));
+
+  Uni->CamLoc =
+  PointTransform(Uni->CamLoc,
+    MatrRotateY(Ani->JZ *
+                Uni->AngleSpeed * Ani->Mdy));
+
+  Uni->CamLoc =
+    VecAddVec(Uni->CamLoc,
+      VecMulNum(d, Ani->GlobalDeltaTime * (Uni->Speed + 10 * Ani->Keys[VK_SHIFT]) *
+      10 * (Ani->JR + Ani->Mdz)));
+
   Uni->CamLoc =
     VecAddVec(Uni->CamLoc,
       VecMulNum(d, Ani->GlobalDeltaTime * (Uni->Speed + 10 * Ani->Keys[VK_SHIFT]) *
       10 * (Ani->Keys[VK_UP] - Ani->Keys[VK_DOWN] + Ani->Mdz)));
 
-  Uni->CamLoc = VecAddVec(Uni->CamLoc, VecMulNum(VD6_RndMatrRight, Ani->Keys[VK_RIGHT] * (Uni->Speed + 3 * Ani->Keys[VK_SHIFT])));
-  Uni->CamLoc = VecSubVec(Uni->CamLoc, VecMulNum(VD6_RndMatrRight, Ani->Keys[VK_LEFT] * (Uni->Speed + 3 * Ani->Keys[VK_SHIFT])));
+    Uni->CamLoc =
+    PointTransform(Uni->CamLoc,
+      MatrRotateY(Ani->Keys[VK_LBUTTON] *
+                  Uni->AngleSpeed * Ani->Mdx));
+
+    Uni->CamLoc =
+    PointTransform(Uni->CamLoc,
+      MatrRotateY(Ani->Keys[VK_RBUTTON] *
+                   Uni->AngleSpeed * Ani->Mdx));
+
+  Uni->CamLoc = VecAddVec(Uni->CamLoc, VecMulNum(VD6_RndMatrRight, Ani->Keys[VK_RIGHT] * (Uni->Speed + 3 * Ani->Keys[VK_SHIFT]) * 0.01));
+  Uni->CamLoc = VecSubVec(Uni->CamLoc, VecMulNum(VD6_RndMatrRight, Ani->Keys[VK_LEFT] * (Uni->Speed + 3 * Ani->Keys[VK_SHIFT]) * 0.01));
 
   VD6_RndCamSet(Uni->CamLoc, Uni->CamAt, VecSet(0, 1, 0));
-
 } /* End of 'VD6_UnitClose' function */
 
 /* Unit render function.
@@ -76,7 +114,7 @@ static VOID VD6_UnitRender( vd6UNIT_CONTROL *Uni, vd6ANIM *Ani )
 
   if (Ani->GlobalTime - OldTime > 2)
   {
-    sprintf(Buf, "FPS: %.3f", Ani->FPS);
+    sprintf(Buf, "FPS: %.3f, J: x %6.3f, but %i", Ani->FPS, Ani->JX, Ani->JBut[0]);
     SetWindowText(Ani->hWnd, Buf);
     OldTime = Ani->GlobalTime;
   }

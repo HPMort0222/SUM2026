@@ -45,7 +45,9 @@ static VOID VD6_UnitResponse( vd6UNIT_COW *Uni, vd6ANIM *Ani )
  */
 static VOID VD6_UnitRender( vd6UNIT_COW *Uni, vd6ANIM *Ani )
 {
-  VD6_RndPrimDraw(&Uni->Cow, MatrTranslate(VecAddVec(Uni->Pos, VecSet(-10, fabs(sin(5 * Ani->Time)), -10))));
+  INT i;
+  for (i = 0; i < 9; i += 3)
+    VD6_RndPrimDraw(&Uni->Cow, MatrTranslate(VecAddVec(Uni->Pos, VecSet(-10, fabs(sin(5 * Ani->Time)), -10 + i * 3))));
 } /* End of 'VD6_UnitClose' function */
 
 static VOID VD6_UnitClose( vd6UNIT_COW *Uni, vd6ANIM *Ani )

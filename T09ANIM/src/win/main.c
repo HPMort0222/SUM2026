@@ -1,4 +1,5 @@
 /* Donik Vasilisa, 10-6, 06.06.2026 */
+#include <stdio.h>
 #include "units/units.h"
 
 #define WND_CLASS_NAME "My super-puper proj"
@@ -11,6 +12,8 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
 {
   WNDCLASS wc;
   MSG msg;
+  HWND hConWnd;
+  CONSOLE_FONT_INFOEX cfi = {0};
   HWND hWnd;
   MATR m;
   INT i;
@@ -41,7 +44,29 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
   hWnd = CreateWindow(WND_CLASS_NAME, "Press me..", WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
     1500, 100, 500, 300, NULL, NULL, hInstance, NULL);
 
-  for (i = 0; i < 10; i++)
+  /* Create console */
+  AllocConsole();
+ 
+  cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+  GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+  cfi.dwFontSize.Y = 18;
+  cfi.FontWeight = FW_BOLD;
+  SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+ 
+  freopen("CONOUT$", "w", stdout);
+  system("@chcp 1251 > nul");
+  printf("\x1b[38;2;%d;%d;%dm \x1b[48;2;%d;%d;%dm", 255, 255, 0, 0, 102, 102);
+  printf("Группа компьютерной графики ФМЛ № 30\n");
+  printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", 0, 255, 0, 90, 90, 90);
+  printf("Computer Graphics Support Group\n");
+  printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", 255, 255, 255, 0, 0, 0);
+  fflush(stdout);
+ 
+  hConWnd = GetConsoleWindow();
+  /* MoveWindow(hConWnd, 2560 + 1920 / 2, 0, 1920 / 2, 1080, FALSE); */
+  SetWindowPos(hConWnd, HWND_TOP, 2560 + 1920 / 2, 0, 1920 / 2, 1000, 0);
+
+  for (i = 0; i < 1000; i++)
     VD6_AnimAddUnit(VD6_AnimUnitCreateBBalls());
   VD6_AnimAddUnit(VD6_AnimUnitCreateCow());
   VD6_AnimAddUnit(VD6_AnimUnitCreateControl());
@@ -90,6 +115,28 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg,
     hDC = BeginPaint(hWnd, &pt);
     VD6_AnimCopyFrame();
     EndPaint(hWnd, &pt);
+    return 0;
+
+  case WM_MOUSEWHEEL:
+    VD6_MouseWheel += (SHORT)HIWORD(wParam);
+    return 0;
+
+  case WM_LBUTTONDOWN:
+    SetCapture(hWnd);
+    return 0;
+
+  case WM_LBUTTONUP:
+    ReleaseCapture();
+    return 0;
+
+  case WM_ACTIVATE:
+    VD6_Anim.IsActive = LOWORD(wParam) != WA_INACTIVE;
+    return 0;
+  case WM_ENTERSIZEMOVE:
+    VD6_Anim.IsActive = FALSE;
+    return 0;
+  case WM_EXITSIZEMOVE:
+    VD6_Anim.IsActive = TRUE;
     return 0;
 
   case WM_DESTROY:

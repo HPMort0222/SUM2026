@@ -50,7 +50,9 @@ VOID VD6_AnimRender( VOID )
   INT i;
 
   VD6_TimerResponse();
-  VD6_AnimInputResponse();
+
+  if (VD6_Anim.IsActive)
+    VD6_AnimInputResponse();
 
   for (i = 0; i < VD6_Anim.NumOfUnits; i++)
     VD6_Anim.Units[i]->Response(VD6_Anim.Units[i], &VD6_Anim);

@@ -11,6 +11,7 @@
 #include "glew.h"
 
 #include "def.h"
+#include "res/rndres.h"
 
 extern HWND VD6_hRndWnd;                 /* Work window handle */
 extern HDC VD6_hRndDC;                   /* Work window memory device context  */
@@ -28,6 +29,8 @@ extern MATR
   VD6_RndMatrVP;                /* Stored (View * Proj) matrix */
 
 extern VEC VD6_RndMatrRight;
+
+extern INT VD6_MouseWheel;
 
 /***
  * Primitive support
@@ -160,5 +163,26 @@ BOOL VD6_RndPrimLoad( vd6PRIM *Pr, CHAR *FileName );
 
 VOID VD6_RndPrimTriMeshAutoNormals( vd6VERTEX *V, INT NoofV, INT *Ind, INT NoofI );
 
+/* Debug output function.
+ * ARGUMENTS:
+ *   - source APi or device:
+ *       UINT Source;
+ *   - error type:
+ *       UINT Type;
+ *   - error message id:
+ *       UINT Id, 
+ *   - message severity:
+ *       UINT severity, 
+ *   - message text length:
+ *       INT Length, 
+ *   - message text:
+ *       CHAR *Message, 
+ *   - user addon parameters pointer:
+ *       VOID *UserParam;
+ * RETURNS: None.
+ */
+VOID APIENTRY glDebugOutput( UINT Source, UINT Type, UINT Id, UINT Severity,
+                             INT Length, const CHAR *Message,
+                             const VOID *UserParam );
 #endif /* __rnd_h_ */
 
