@@ -15,3 +15,5 @@ MATR
     VD6_RndMatrView,              /* View coordinate system matrix */
     VD6_RndMatrProj,              /* Projection coordinate system matrix */
     VD6_RndMatrVP;                /* Stored (View * Proj) matrix */
+
+VEC VD6_RndMatrRight;

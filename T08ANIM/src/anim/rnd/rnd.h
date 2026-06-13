@@ -24,9 +24,7 @@ extern MATR
            VD6_RndMatrProj,              /* Projection coordinate system matrix */
            VD6_RndMatrVP;                /* Stored (View * Proj) matrix */
 
-/***
- *  Primitive handle
- ***/
+  extern VEC VD6_RndMatrRight;
 
 /* Vertex representation type */
 typedef struct tagvd6VERTEX

@@ -435,6 +435,14 @@ __inline MATR MatrView( VEC Loc, VEC At, VEC Up1 )
   return m;
 } /* End of 'MatrView' function */
 
+__inline VEC MatrRight( VEC Loc, VEC At, VEC Up1 )
+{
+ VEC
+    Dir = VecNormalize(VecSubVec(At, Loc));
+
+  return VecNormalize(VecCrossVec(Dir, Up1));
+}
+
 /* Perspective (frustum) projection matrix setup function.
  * ARGUMENTS:
  *   - frustum side facets coordinates:

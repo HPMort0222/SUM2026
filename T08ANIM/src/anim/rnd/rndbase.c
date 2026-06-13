@@ -75,6 +75,7 @@ VOID VD6_RndProjSet( VOID )
 VOID VD6_RndCamSet( VEC Loc, VEC At, VEC Up )
 {
   VD6_RndMatrView = MatrView(Loc, At, Up);
+  VD6_RndMatrRight = MatrRight(Loc, At, Up);
   VD6_RndMatrVP = MatrMulMatr(VD6_RndMatrView, VD6_RndMatrProj);
 }
 
