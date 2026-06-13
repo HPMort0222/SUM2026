@@ -51,8 +51,11 @@ static VOID VD6_UnitResponse( vd6UNIT_CONTROL *Uni, vd6ANIM *Ani )
 
   Uni->CamLoc =
     VecAddVec(Uni->CamLoc,
-      VecMulNum(d, Ani->GlobalDeltaTime * (Uni->Speed + 3 * Ani->Keys[VK_SHIFT]) *
-      (Ani->Keys[VK_UP] - Ani->Keys[VK_DOWN] + Ani->Mdz)));
+      VecMulNum(d, Ani->GlobalDeltaTime * (Uni->Speed + 10 * Ani->Keys[VK_SHIFT]) *
+      10 * (Ani->Keys[VK_UP] - Ani->Keys[VK_DOWN] + Ani->Mdz)));
+
+  Uni->CamLoc = VecAddVec(Uni->CamLoc, VecMulNum(VD6_RndMatrRight, Ani->Keys[VK_RIGHT] * (Uni->Speed + 3 * Ani->Keys[VK_SHIFT])));
+  Uni->CamLoc = VecSubVec(Uni->CamLoc, VecMulNum(VD6_RndMatrRight, Ani->Keys[VK_LEFT] * (Uni->Speed + 3 * Ani->Keys[VK_SHIFT])));
 
   VD6_RndCamSet(Uni->CamLoc, Uni->CamAt, VecSet(0, 1, 0));
 

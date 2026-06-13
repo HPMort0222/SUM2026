@@ -41,7 +41,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInctance,
   hWnd = CreateWindow(WND_CLASS_NAME, "Press me..", WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
     1500, 100, 500, 300, NULL, NULL, hInstance, NULL);
 
-  for (i = 0; i < 100; i++)
+  for (i = 0; i < 10; i++)
     VD6_AnimAddUnit(VD6_AnimUnitCreateBBalls());
   VD6_AnimAddUnit(VD6_AnimUnitCreateCow());
   VD6_AnimAddUnit(VD6_AnimUnitCreateControl());

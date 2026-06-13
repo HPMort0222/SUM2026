@@ -7,6 +7,8 @@
 #ifndef __mth_h_
 #define __mth_h_
 
+#pragma warning(disable: 4244 4305)
+
 #include <math.h>
 #include <windows.h>
 
@@ -473,6 +475,14 @@ __inline MATR MatrView( VEC Loc, VEC At, VEC Up1 )
   return m;
 } /* End of 'MatrView' function */
 
+__inline VEC MatrRight( VEC Loc, VEC At, VEC Up1 )
+{
+ VEC
+    Dir = VecNormalize(VecSubVec(Up1, Loc));
+
+  return VecNormalize(VecCrossVec(Dir, Up1));
+}
+
 /* Perspective (frustum) projection matrix setup function.
  * ARGUMENTS:
  *   - frustum side facets coordinates:
@@ -494,5 +504,34 @@ __inline MATR MatrFrustum( FLT Left, FLT Right, FLT Bottom, FLT Top, FLT Near, F
 
   return m;
 } /* End of 'MatrFrustum' function */
+
+/* Obtain minimum of two vectors function.
+ * ARGUMENTS:
+ *   - vectors to be compare:
+ *       VEC V1, V2;
+ * RETURNS:
+ *   (VEC) result vector.
+ */
+__inline VEC VecMinVec( VEC V1, VEC V2 )
+{
+  return VecSet(V1.X < V2.X ? V1.X : V2.X,
+                V1.Y < V2.Y ? V1.Y : V2.Y,
+                V1.Z < V2.Z ? V1.Z : V2.Z);
+} /* End of 'VecMinVec' function */
+
+/* Obtain miaximum of two vectors function.
+ * ARGUMENTS:
+ *   - vectors to be compare:
+ *       VEC V1, V2;
+ * RETURNS:
+ *   (VEC) result vector.
+ */
+__inline VEC VecMaxVec( VEC V1, VEC V2 )
+{
+  return VecSet(V1.X > V2.X ? V1.X : V2.X,
+                V1.Y > V2.Y ? V1.Y : V2.Y,
+                V1.Z > V2.Z ? V1.Z : V2.Z);
+} /* End of 'VecMaxVec' function */
+
 
 #endif /* __mth_h_ */

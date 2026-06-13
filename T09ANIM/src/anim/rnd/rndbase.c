@@ -52,15 +52,7 @@ VOID VD6_RndInit( HWND hWnd )
   wglMakeCurrent(VD6_hRndDC, VD6_hRndGLRC);
 
   if (glewInit() != GLEW_OK)
-  exit(0);
-
-  /* Render parameters setup */
-  VD6_RndProjSize = 0.1;
-  VD6_RndProjDist = VD6_RndProjSize;
-  VD6_RndProjFarClip = 300;
-  VD6_RndW = 47;
-  VD6_RndH = 47;
-  VD6_RndCamSet(VecSet(5, 5, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
+    exit(0);
 
   wglChoosePixelFormatARB(VD6_hRndDC, PixelAttribs, NULL, 1, i1, &i);
   hRC = wglCreateContextAttribsARB(VD6_hRndDC, NULL, ContextAttribs);
@@ -73,7 +65,16 @@ VOID VD6_RndInit( HWND hWnd )
     wglMakeCurrent(VD6_hRndDC, VD6_hRndGLRC);
   }
 
+  /* Render parameters setup */
+  wglSwapIntervalEXT(0);
   glEnable(GL_DEPTH_TEST);
+
+  VD6_RndProjSize = 0.1;
+  VD6_RndProjDist = VD6_RndProjSize;
+  VD6_RndProjFarClip = 300;
+  VD6_RndW = 47;
+  VD6_RndH = 47;
+  VD6_RndCamSet(VecSet(5, 5, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
 }
 
 VOID VD6_RndClose( VOID )
@@ -132,5 +133,6 @@ VOID VD6_RndProjSet( VOID )
 VOID VD6_RndCamSet( VEC Loc, VEC At, VEC Up )
 {
   VD6_RndMatrView = MatrView(Loc, At, Up);
+  VD6_RndMatrRight = MatrRight(Loc, At, Up);
   VD6_RndMatrVP = MatrMulMatr(VD6_RndMatrView, VD6_RndMatrProj);
 }

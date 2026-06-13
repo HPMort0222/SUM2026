@@ -18,40 +18,55 @@ extern INT VD6_RndW, VD6_RndH; /* Work window size */
 extern HGLRC VD6_hRndGLRC;
 
 extern DBL
-          VD6_RndProjSize,         /* Project plane fit square */
-          VD6_RndProjDist,         /* Distance to project plane from viewer (near) */
-          VD6_RndProjFarClip;      /* Distance to project far clip plane (far) */
+  VD6_RndProjSize,         /* Project plane fit square */
+  VD6_RndProjDist,         /* Distance to project plane from viewer (near) */
+  VD6_RndProjFarClip;      /* Distance to project far clip plane (far) */
 
 extern MATR
-           VD6_RndMatrView,              /* View coordinate system matrix */
-           VD6_RndMatrProj,              /* Projection coordinate system matrix */
-           VD6_RndMatrVP;                /* Stored (View * Proj) matrix */
+  VD6_RndMatrView,              /* View coordinate system matrix */
+  VD6_RndMatrProj,              /* Projection coordinate system matrix */
+  VD6_RndMatrVP;                /* Stored (View * Proj) matrix */
+
+extern VEC VD6_RndMatrRight;
 
 /***
- *  Primitive handle
+ * Primitive support
  ***/
 
 /* Vertex representation type */
 typedef struct tagvd6VERTEX
 {
-  VEC2 T;
-  VEC N;
   VEC P;  /* Vertex position */
-  VEC4 C;
+  VEC2 T; /* Vertex texture coordinates */
+  VEC N;  /* Vertex normal */
+  VEC4 C; /* Vertex color */
 } vd6VERTEX;
+
+/* Primitive type */
+typedef enum tagvd6PRIM_TYPE
+{
+  VD6_RND_PRIM_POINTS,   /* Array of points  – GL_POINTS */
+  VD6_RND_PRIM_LINES,    /* Line segments (by 2 points) – GL_LINES */
+  VD6_RND_PRIM_TRIMESH,  /* Triangle mesh - array of triangles – GL_TRIANGLES */
+} vd6PRIM_TYPE;
+
 
 /* Primitive representation type */
 typedef struct tagvd6PRIM
 {
-  vd6VERTEX *V; /* Vertex attributes array */
-  INT NumOfV;   /* Number of vertices */
+  vd6PRIM_TYPE Type; /* Primitive type */
 
-  INT *I;       /* Index array (for trimesh – by 3 ones) */
-  INT NumOfI;   /* Number of indices */
+  INT
+    VA,              /* Vertex array Id */
+    VBuf,            /* Vertex buffer Id */
+    IBuf;            /* Index buffer Id (if 0 - use only vertex buffer) */
+
+  INT NumOfElements; /* Number of indices/vecrtices */
+
+  VEC MinBB, MaxBB;  /* Bound box */
 
   MATR Trans;   /* Additional transformation matrix */
 } vd6PRIM;
-
 
 VOID VD6_RndInit( HWND hWnd );
 
@@ -69,16 +84,24 @@ VOID VD6_RndProjSet( VOID );
 
 VOID VD6_RndCamSet( VEC Loc, VEC At, VEC Up );
 
-/* Primitive create function.
+/* Create primitive function.
  * ARGUMENTS:
- *   - primitive to be create:
- *       vg4PRIM *Pr;
- *   - number of vertecis and indices:
- *       INT NoofV, NoofI;
- * RETURNS:
- *   (BOOL) TRUE if success, FLASE otherwise.
+ *   - pointer to primitive to create:
+ *       vd6PRIM *Pr;
+ *   - primitive type:
+ *       vd6PRIM_TYPE Type;
+ *   - vertex attributes array:
+ *       vd6VERTEX *V;
+ *   - vertex attributes array size:
+ *       INT NoofV;
+ *   - primitive vertex index array:
+ *       INT *Ind;
+ *   - primitive vertex index array size:
+ *       INT NoofI;
+ * RETURNS: None.
  */
-BOOL VD6_RndPrimCreate( vd6PRIM *Pr, INT NoofV, INT NoofI );
+VOID VD6_RndPrimCreate( vd6PRIM *Pr, vd6PRIM_TYPE Type,
+                        vd6VERTEX *V, INT NoofV, INT *Ind, INT NoofI );
 
 /* Primitive free function.
  * ARGUMENTS:
@@ -134,6 +157,8 @@ BOOL VD6_RndPrimCreateCylinder( vd6PRIM *Pr, DBL R, INT W, INT H );
  *   (BOOL) TRUE if success, FLASE otherwise.
  */
 BOOL VD6_RndPrimLoad( vd6PRIM *Pr, CHAR *FileName );
+
+VOID VD6_RndPrimTriMeshAutoNormals( vd6VERTEX *V, INT NoofV, INT *Ind, INT NoofI );
 
 #endif /* __rnd_h_ */
 

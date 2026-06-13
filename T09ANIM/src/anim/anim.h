@@ -63,3 +63,7 @@ VOID VD6_AnimAddUnit( vd6UNIT *Uni );
 VOID VD6_AnimExit( VOID );
 
 vd6UNIT * VD6_AnimUnitCreate( INT Size );
+
+VOID VD6_AnimInputInit( VOID );
+
+VOID VD6_AnimInputResponse( VOID );
